@@ -1,0 +1,13 @@
+c:\users\jurgis\source\repos\interpreter\interpreter\obj\Debug\interpreter.exe.config
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\interpreter.exe.config
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\interpreter.XML
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\interpreter.exe
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\interpreter.pdb
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\FSharp.Core.dll
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\FsLexYacc.Runtime.dll
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\System.ValueTuple.dll
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\FSharp.Core.xml
+c:\users\jurgis\source\repos\interpreter\interpreter\bin\Debug\FsLexYacc.Runtime.xml
+c:\users\jurgis\source\repos\interpreter\interpreter\obj\Debug\interpreter.exe
+c:\users\jurgis\source\repos\interpreter\interpreter\obj\Debug\interpreter.pdb
+c:\users\jurgis\source\repos\interpreter\interpreter\obj\Debug\interpreter.fsprojResolveAssemblyReference.cache
