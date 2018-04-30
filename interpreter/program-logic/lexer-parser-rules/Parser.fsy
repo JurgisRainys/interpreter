@@ -1,0 +1,132 @@
+﻿%{
+    open interpreter.AST
+    open System
+%}
+
+%start start
+
+%token INT
+%token STR
+%token BOOL
+%token <string> IDENTIFIER
+%token <string> STRING
+%token <int> NUMBER
+%token <bool> BOOLEAN
+%token THEN
+%token ELSE
+%token IF
+%token WHILE
+%token FUN
+%token RETURN
+%token PRINT
+%token NOT_EQUAL
+%token EQUALS
+%token LOGICAL_OR
+%token LOGICAL_AND
+%token LESS_THAN
+%token MORE_THAN
+%token ADD
+%token SUBTRACT
+%token DIVIDE
+%token MULTIPLY
+%token COMMA
+%token OPEN_BLOCK
+%token CLOSE_BLOCK
+%token LEFT_PARENS
+%token RIGHT_PARENS
+%token SEMICOLON
+%token ASSIGNMENT
+%token EOF
+
+%type <Statement list> start
+
+%%
+
+start: prog { $1 }
+
+prog:
+    | EOF                           { List.empty }
+    | statements                    { $1 }
+
+statements:
+    | statement                     { [$1] }
+    | statement statements          { $1 :: $2 } // reversint lista reikes, kad statementai eitu is teisingo galo
+
+statement:
+    | newVarAssignment              { NewVarAssignment $1 }
+    | existingVarAssignment         { ExistingVarAssignment $1 }
+    | ifCond                        { If $1 }
+    | whileLoop                     { While $1 }
+    | printLine                     { Print $1 }
+    | func                      { Function $1 }
+
+newVarAssignment: 
+    vartype IDENTIFIER ASSIGNMENT expression SEMICOLON
+        {{ vartype = $1; identifier = $2; value = $4 }}
+
+existingVarAssignment:
+    IDENTIFIER ASSIGNMENT expression SEMICOLON
+        {{ identifier = $1; value = $3}}
+
+ifCond:
+    | IF LEFT_PARENS expression RIGHT_PARENS THEN OPEN_BLOCK 
+        statements CLOSE_BLOCK ELSE OPEN_BLOCK statements CLOSE_BLOCK
+        {{ condition = $3; trueBranch = $7; falseBranch = $11 }}
+    | IF LEFT_PARENS expression RIGHT_PARENS THEN OPEN_BLOCK 
+        statements CLOSE_BLOCK
+        {{ condition = $3; trueBranch = $7; falseBranch = [] }}
+
+whileLoop:
+    WHILE LEFT_PARENS expression RIGHT_PARENS OPEN_BLOCK statements CLOSE_BLOCK
+        {{ condition = $3; body = $6 }}
+
+printLine:
+    | PRINT LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { Variable $3 }
+    | PRINT LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { Message $3 }
+    | PRINT IDENTIFIER SEMICOLON                            { Variable $2 }
+    | PRINT STRING SEMICOLON                                { Message $2 }
+
+funArg: vartype IDENTIFIER  {{ vartype = $1; identifier = $2 }}
+
+funArgs: 
+    | funArg                { [$1] }
+    | funArg COMMA funArgs  { $1 :: $3 }
+
+func:
+    FUN IDENTIFIER LEFT_PARENS funArgs RIGHT_PARENS 
+        OPEN_BLOCK statements CLOSE_BLOCK
+            {{ name = $2; args = $4; body = $7 }}
+
+vartype:
+    | INT           { Int }
+    | STR           { Str }
+    | BOOL          { Bool }
+
+expression:
+    | value         { Value $1 }
+    | operation     { Expression $1 }
+    | IDENTIFIER    { Identifier $1 }
+
+expressionInParens: 
+    | LEFT_PARENS expression RIGHT_PARENS   { $2 }
+    | expression                            { $1 }
+
+value:
+    | STRING        { Value.String $1 }
+    | BOOLEAN       { Value.Boolean $1 }
+    | NUMBER        { Number $1 }
+
+operator:
+    | ADD           { Add }             | SUBTRACT      { Subtract }
+    | DIVIDE        { Divide }          | MULTIPLY      { Multiply }
+    | LOGICAL_OR    { LogicalOr }       | LOGICAL_AND   { LogicalAnd }
+    | EQUALS        { Equals }          | NOT_EQUAL     { NotEqual }
+    | MORE_THAN     { MoreThan }        | LESS_THAN     { LessThan }
+    
+operation:
+    expressionInParens operator expressionInParens
+        {{ op = $2; left = $1; right = $3 }}
+
+
+
+

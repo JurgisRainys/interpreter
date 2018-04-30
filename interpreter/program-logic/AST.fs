@@ -79,15 +79,3 @@ module AST =
     | While of While
     | Print of Print
     | Function of Function
-
-
-
-
-    (*
-        <FsYacc Include="lexer-parser-rules/Parser.fsy">
-          <OtherFlags>--module Parser</OtherFlags>
-        </FsYacc>
-        <FsLex Include="lexer-parser-rules/Lexer.fsl">
-          <OtherFlags>--unicode</OtherFlags>
-        </FsLex>
-    *)

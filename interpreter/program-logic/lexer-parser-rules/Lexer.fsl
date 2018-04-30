@@ -1,0 +1,114 @@
+﻿{
+
+module Lexer
+
+open Microsoft.FSharp.Text.Lexing
+open System
+open Parser
+exception SyntaxError of string
+
+let lexeme = LexBuffer.LexemeString
+
+let newline (lexbuf: LexBuffer<_>) = 
+  lexbuf.StartPos <- lexbuf.StartPos.NextLine
+
+let trimStringQuotes (str: string) =
+    str.Substring(1, str.Length - 2)
+
+let parseNum (str: string) = 
+    let sign = str.[0]
+    let numParts = 
+        str
+            .Substring(1, str.Length - 1)
+            .Split(':') 
+            |> Array.fold (fun num (str) -> 
+                match str with 
+                | "zero" when num = 0 -> num 
+                | "zero" when num <> 0 -> num * 10 
+                | "one" -> num * 10 + 1
+                | "two" -> num * 10 + 2
+                | "three" -> num * 10 + 3
+                | "four" -> num * 10 + 4
+                | "five" -> num * 10 + 5
+                | "six" -> num * 10 + 6
+                | "seven" -> num * 10 + 7
+                | "eight" -> num * 10 + 8
+                | "nine" -> num * 10 + 9
+                | _ -> num)
+            0
+
+    if sign = '-' then -numParts
+    else numParts
+
+let reserved = [
+    "INT"; "STR"; "BOOL"; "TRUE"; "FALSE"; "THEN"; "ELSE";
+    "IF"; "WHILE"; "FUN"; "RETURN"; "PRINT"; "OR"; "AND";
+]
+
+let checkIfReserved (str: String) =
+    match reserved |> List.tryFind (fun x -> x = str) with
+    | None -> IDENTIFIER (str)
+    | Some (r) -> 
+        match r with 
+        | "INT" -> INT
+        | "STR" ->  STR
+        | "BOOL" -> BOOL
+        | "TRUE" -> BOOLEAN true 
+        | "FALSE" -> BOOLEAN false 
+        | "THEN" -> THEN 
+        | "ELSE" -> ELSE 
+        | "IF" -> IF 
+        | "WHILE" -> WHILE 
+        | "FUN" -> FUN 
+        | "RETURN" -> RETURN 
+        | "PRINT" -> PRINT 
+        | "OR" -> LOGICAL_OR 
+        | "AND" -> LOGICAL_AND 
+        | _ -> IDENTIFIER("reserved token missing")
+
+}
+
+let whitespace      = [' ' '\t' ]+
+let newline         = '\n' | '\r' | '\r' '\n'
+
+let digit           = ":zero" | ":one" | ":two" | ":three" | ":four" | ":five" | ":six" | ":seven" | ":eight" | ":nine"
+let sign            = '-' | '+'
+let numbers         = sign? digit+
+
+let identifierStart = [ 'a'-'z' 'A'-'Z' ]
+let identifierRest  = [ 'a'-'z' 'A'-'Z' '0'-'9']  //"a-zA-Z0-9"
+let identifier      = identifierStart identifierRest*
+
+let anyNotQuote     = [ ^ '"' ]
+let stringRegex     = '"' anyNotQuote* '"'
+
+rule tokens = 
+	parse
+	| whitespace	    { tokens lexbuf }
+	| newline		      { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokens lexbuf }
+	
+	| numbers	        { NUMBER ( int (lexeme lexbuf |> parseNum)) }
+  | stringRegex     { STRING ( string (lexeme lexbuf |> trimStringQuotes)) }
+	| identifier	    { lexeme lexbuf |> checkIfReserved }
+
+	| "!="			      { NOT_EQUAL }
+	| "=="			      { EQUALS }
+	| '<'			        { LESS_THAN }
+	| '>'			        { MORE_THAN }
+
+	| '+'			        { ADD }
+	| '-'			        { SUBTRACT }
+	| '/'			        { DIVIDE }
+	| '*'			        { MULTIPLY }
+
+	| ","			        { COMMA }
+	| "->"			      { OPEN_BLOCK }
+	| "<-"			      { CLOSE_BLOCK }
+	| '('			        { LEFT_PARENS }
+	| ')'			        { RIGHT_PARENS }
+	| ';'			        { SEMICOLON }
+	| '='			        { ASSIGNMENT }
+
+	| eof			        { EOF }
+	| _				        { raise (Exception (sprintf "SyntaxError: Unexpected char: '%s' Line: %d Column: %d" (lexeme lexbuf) (lexbuf.StartPos.Line+1) lexbuf.StartPos.Column)) }
+

@@ -57,12 +57,18 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="AST.fs" />
-
+    <Compile Include="program-logic/AST.fs" />
+    <FsYacc Include="program-logic/lexer-parser-rules/Parser.fsy">
+      <OtherFlags>--module Parser</OtherFlags>
+    </FsYacc>
+    <FsLex Include="program-logic/lexer-parser-rules/Lexer.fsl">
+      <OtherFlags>--unicode</OtherFlags>
+    </FsLex>
+    <None Include="program-logic\Program.xd" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Lexer.fs" />
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Entry.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
   </ItemGroup>
@@ -90,6 +96,5 @@
   </Target>
   -->
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
-  <Import Project="..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" />
- 
+  <Import Project="..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" />
 </Project>

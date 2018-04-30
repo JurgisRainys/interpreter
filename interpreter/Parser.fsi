@@ -26,6 +26,8 @@ type token =
   | IF
   | ELSE
   | THEN
+  | BOOLEAN of (bool)
+  | NUMBER of (int)
   | STRING of (string)
   | IDENTIFIER of (string)
   | BOOL
@@ -57,6 +59,8 @@ type tokenId =
     | TOKEN_IF
     | TOKEN_ELSE
     | TOKEN_THEN
+    | TOKEN_BOOLEAN
+    | TOKEN_NUMBER
     | TOKEN_STRING
     | TOKEN_IDENTIFIER
     | TOKEN_BOOL
@@ -68,8 +72,22 @@ type nonTerminalId =
     | NONTERM__startstart
     | NONTERM_start
     | NONTERM_prog
+    | NONTERM_statements
     | NONTERM_statement
+    | NONTERM_newVarAssignment
+    | NONTERM_existingVarAssignment
+    | NONTERM_ifCond
+    | NONTERM_whileLoop
+    | NONTERM_printLine
+    | NONTERM_funArg
+    | NONTERM_funArgs
+    | NONTERM_func
     | NONTERM_vartype
+    | NONTERM_expression
+    | NONTERM_expressionInParens
+    | NONTERM_value
+    | NONTERM_operator
+    | NONTERM_operation
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 
@@ -81,4 +99,4 @@ val prodIdxToNonTerminal: int -> nonTerminalId
 
 /// This function gets the name of a token as a string
 val token_to_string: token -> string
-val start : (Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> (interpreter.AST option) 
+val start : (Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> Microsoft.FSharp.Text.Lexing.LexBuffer<'cty> -> (Statement list) 

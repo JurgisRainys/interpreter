@@ -1,0 +1,19 @@
+﻿INT xd = (-:zero:one:two:three:zero:one + :one) + (:two + :two);
+BOOL x2d = TRUE OR FALSE;
+xd = "SSSSS" - "xxddd";
+
+IF (TRUE OR FALSE) THEN ->
+    xd = "SSSSS" - "xxddd";
+<- ELSE ->
+    xd = "SSSSS" - "xxddd";
+<-
+
+WHILE (a > :four) ->
+    a = a - :one;
+<-
+
+PRINT XD;
+PRINT "LOL";
+
+FUN funcXD (INT i, BOOL b) ->   PRINT XD;<-
+FUN funcXD (INT i) ->   PRINT XD;<-
