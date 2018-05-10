@@ -1,4 +1,40 @@
-﻿INT xd = (-:zero:one:two:three:zero:one + :one) + (:two + :two);
+﻿
+
+BOOL B1 = :one > :two; B1 = :one > :two;
+
+
+
+
+
+/*
+
+INT XXD = (:one + :two:two) + (:one + (:three + :five));
+XDD = TRUE;
+BOOL XXD = TRUE;
+    STR x = id("x", (("d" ++ "s") ++ "s"));
+
+IF (TRUE OR FALSE) THEN ->
+    xd = "SSSSS" ++ "xxddd";
+    XXD = :one;
+    IF (TRUE OR FALSE) THEN ->
+        xd = "SSSSS" ++ "xxddd";
+        XXD = :one;
+        
+    <- ELSE ->
+        xd = "SSSSS" - "xxddd";
+    <-
+<- ELSE -> xd = "SSSSS" - "xxddd"; <-
+
+WHILE (TRUE) ->
+    STR SSSFFFF = "SF";
+<-
+
+FUN STR funcXD (INT i) ->   PRINT XD; RETURN :one; <-
+FUN STR funcXD (INT i2, STR SSSSSSS) ->   PRINT XD; RETURN SSSSSSS;<-
+
+
+INT xd = (-:zero:one:two:three:zero:one + :one) + (:two + :two);
+
 BOOL x2d = TRUE OR FALSE;
 xd = "SSSSS" - "xxddd";
 
@@ -15,5 +51,11 @@ WHILE (a > :four) ->
 PRINT XD;
 PRINT "LOL";
 
-FUN funcXD (INT i, BOOL b) ->   PRINT XD;<-
-FUN funcXD (INT i) ->   PRINT XD;<-
+FUN funcXD (INT i, BOOL b) ->   
+    PRINT XD;
+    RETURN;
+    <-
+
+FUN funcXD (INT i) ->   PRINT XD; RETURN <-
+FUN funcXD (INT i2, STR SSSSSSS) ->   PRINT XD; RETURN SSSSSSS;<-
+*/

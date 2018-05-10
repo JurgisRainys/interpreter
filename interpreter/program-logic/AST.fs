@@ -1,81 +1,88 @@
-﻿namespace interpreter
+﻿module AST 
 
-module AST = 
-    type Identifier = string
+type Identifier = string
 
-    type Print = 
-        | Variable of Identifier
-        | Message of string
+type Print = 
+    | Variable of Identifier
+    | Message of string
 
-    type Vartype =
-        | Int
-        | Str
-        | Bool   
+type Vartype =
+    | Int
+    | Str
+    | Bool   
 
-    type Value = 
-        | String of string
-        | Number of int
-        | Boolean of bool
+type Value = 
+    | String of string
+    | Number of int
+    | Boolean of bool
 
-    type Operator = 
-        | Add           | Subtract
-        | Multiply      | Divide
-        | MoreThan      | LessThan
-        | LogicalOr     | LogicalAnd
-        | Equals        | NotEqual
+type Operator = 
+    | Add           | Subtract
+    | Multiply      | Divide
+    | MoreThan      | LessThan
+    | LogicalOr     | LogicalAnd
+    | Equals        | NotEqual
+    | Append
+
+type FunctionCall = {
+    identifier: string
+    arguments: Expression list
+}
     
-    type Expression = 
-        | Value of Value
-        | Expression of Operation
-        | Identifier of Identifier
-        
-    and Operation = {
-        op: Operator
-        left: Expression
-        right: Expression
-    }
+and Expression = 
+    | Value of Value
+    | Expression of Operation
+    | Identifier of Identifier
+    | FunctionCall of FunctionCall
 
-    type NewVarAssignment = {
-        vartype: Vartype
-        identifier: Identifier
-        value: Expression
-    }
+and Operation = {
+    op: Operator
+    left: Expression
+    right: Expression
+}
 
-    type ExistingVarAssignment = {
-        identifier: Identifier
-        value: Expression
-    }
+and NewVarAssignment = {
+    vartype: Vartype
+    identifier: Identifier
+    value: Expression
+}
 
-    type FunArg = {
-        vartype: Vartype
-        identifier: Identifier
-    }
+and ExistingVarAssignment = {
+    identifier: Identifier
+    value: Expression
+}
 
-    type While = {
-        condition: Expression
-        body: Block
-    }
+and FunArg = {
+    vartype: Vartype
+    identifier: Identifier
+}
 
-    and If = { 
-        condition: Expression
-        trueBranch: Block
-        falseBranch: Block
-    }
+and While = {
+    condition: Expression
+    body: Block
+}
 
+and If = { 
+    condition: Expression
+    trueBranch: Block
+    falseBranch: Block
+}
 
-    and Function = {
-        name: Identifier
-        args: FunArg list
-        body: Block
-    }
+and Function = {
+    ``type``: Vartype
+    name: Identifier
+    args: FunArg list
+    body: Block
+    toReturn: Expression
+}
 
-    and Block = Statement list
+and Block = Statement list
 
-    and Statement =
-    | NewVarAssignment of NewVarAssignment
-    | ExistingVarAssignment of ExistingVarAssignment
-    | Block of Block
-    | If of If
-    | While of While
-    | Print of Print
-    | Function of Function
+and Statement =
+| NewVarAssignment of NewVarAssignment
+| ExistingVarAssignment of ExistingVarAssignment
+| Block of Block
+| If of If
+| While of While
+| Print of Print
+| Function of Function

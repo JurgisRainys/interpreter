@@ -1,10 +1,9 @@
 ﻿namespace interpreter
  
-open System
+open System.IO
 open Microsoft.FSharp.Text.Lexing
 
 module Entry = 
-    open System.IO
     let path = "..\\..\\program-logic\\Program.xd"
 
     [<EntryPoint>]
@@ -15,7 +14,7 @@ module Entry =
                         Parser.start Lexer.tokens lexbuf
                       with e ->
                         let pos = lexbuf.EndPos
-                        let line = pos.Line
+                        let line = pos.Line + 1
                         let column = pos.Column
                         let message = e.Message
                         let lastToken = new System.String(lexbuf.Lexeme)
@@ -31,11 +30,11 @@ module Entry =
             else ""
 
         
-        let parseResult = code |> parse
-        printfn "%A" parseResult
+        code 
+        |> parse
+        |> Semantics.analyze 
+        |> Option.map Interpreter.interpret
 
         printfn "Press any key to continue..."
         System.Console.ReadLine() |> ignore
         0
-
-    

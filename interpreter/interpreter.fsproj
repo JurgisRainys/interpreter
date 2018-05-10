@@ -58,13 +58,16 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="program-logic/AST.fs" />
+    <Compile Include="program-logic\Either.fs" />
     <FsYacc Include="program-logic/lexer-parser-rules/Parser.fsy">
       <OtherFlags>--module Parser</OtherFlags>
     </FsYacc>
     <FsLex Include="program-logic/lexer-parser-rules/Lexer.fsl">
       <OtherFlags>--unicode</OtherFlags>
     </FsLex>
-    <None Include="program-logic\Program.xd" />
+    <None Include="program-logic/Program.xd" />
+    <Compile Include="program-logic\Semantics.fs" />
+    <Compile Include="program-logic/Interpreter.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Lexer.fs" />

@@ -1,5 +1,5 @@
 ﻿%{
-    open interpreter.AST
+    open AST
     open System
 %}
 
@@ -26,6 +26,7 @@
 %token LESS_THAN
 %token MORE_THAN
 %token ADD
+%token APPEND
 %token SUBTRACT
 %token DIVIDE
 %token MULTIPLY
@@ -58,7 +59,7 @@ statement:
     | ifCond                        { If $1 }
     | whileLoop                     { While $1 }
     | printLine                     { Print $1 }
-    | func                      { Function $1 }
+    | func                          { Function $1 }
 
 newVarAssignment: 
     vartype IDENTIFIER ASSIGNMENT expression SEMICOLON
@@ -93,19 +94,24 @@ funArgs:
     | funArg COMMA funArgs  { $1 :: $3 }
 
 func:
-    FUN IDENTIFIER LEFT_PARENS funArgs RIGHT_PARENS 
-        OPEN_BLOCK statements CLOSE_BLOCK
-            {{ name = $2; args = $4; body = $7 }}
+    FUN vartype IDENTIFIER LEFT_PARENS funArgs RIGHT_PARENS 
+        OPEN_BLOCK statements returnS CLOSE_BLOCK
+            {{ ``type`` = $2; name = $3; args = $5; body = $8; toReturn = $9 }}
+
+returnS:
+    | RETURN LEFT_PARENS expression RIGHT_PARENS SEMICOLON  { $3 }
+    | RETURN expression SEMICOLON                           { $2 }
 
 vartype:
     | INT           { Int }
     | STR           { Str }
-    | BOOL          { Bool }
+    | BOOL          { Bool }  
 
 expression:
     | value         { Value $1 }
     | operation     { Expression $1 }
     | IDENTIFIER    { Identifier $1 }
+    | functionCall  { FunctionCall $1 }
 
 expressionInParens: 
     | LEFT_PARENS expression RIGHT_PARENS   { $2 }
@@ -122,11 +128,15 @@ operator:
     | LOGICAL_OR    { LogicalOr }       | LOGICAL_AND   { LogicalAnd }
     | EQUALS        { Equals }          | NOT_EQUAL     { NotEqual }
     | MORE_THAN     { MoreThan }        | LESS_THAN     { LessThan }
+    | APPEND        { Append }
     
 operation:
     expressionInParens operator expressionInParens
         {{ op = $2; left = $1; right = $3 }}
 
+functionArguments: 
+    | expressionInParens                                { [$1] }
+    | expression COMMA functionArguments                { $1 :: $3 }
 
-
-
+functionCall: 
+    IDENTIFIER LEFT_PARENS functionArguments RIGHT_PARENS {{ identifier = $1; arguments = $3 }}

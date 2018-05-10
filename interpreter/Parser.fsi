@@ -12,6 +12,7 @@ type token =
   | MULTIPLY
   | DIVIDE
   | SUBTRACT
+  | APPEND
   | ADD
   | MORE_THAN
   | LESS_THAN
@@ -45,6 +46,7 @@ type tokenId =
     | TOKEN_MULTIPLY
     | TOKEN_DIVIDE
     | TOKEN_SUBTRACT
+    | TOKEN_APPEND
     | TOKEN_ADD
     | TOKEN_MORE_THAN
     | TOKEN_LESS_THAN
@@ -82,12 +84,15 @@ type nonTerminalId =
     | NONTERM_funArg
     | NONTERM_funArgs
     | NONTERM_func
+    | NONTERM_returnS
     | NONTERM_vartype
     | NONTERM_expression
     | NONTERM_expressionInParens
     | NONTERM_value
     | NONTERM_operator
     | NONTERM_operation
+    | NONTERM_functionArguments
+    | NONTERM_functionCall
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 

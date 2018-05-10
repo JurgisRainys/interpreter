@@ -68,25 +68,30 @@ let checkIfReserved (str: String) =
 
 }
 
-let whitespace      = [' ' '\t' ]+
-let newline         = '\n' | '\r' | '\r' '\n'
+let whitespace          = [' ' '\t' ]+
+let newline             = '\n' | '\r' | '\r' '\n'
 
-let digit           = ":zero" | ":one" | ":two" | ":three" | ":four" | ":five" | ":six" | ":seven" | ":eight" | ":nine"
-let sign            = '-' | '+'
-let numbers         = sign? digit+
+let digit               = ":zero" | ":one" | ":two" | ":three" | ":four" | ":five" | ":six" | ":seven" | ":eight" | ":nine"
+let sign                = '-' | '+'
+let numbers             = sign? digit+
 
-let identifierStart = [ 'a'-'z' 'A'-'Z' ]
-let identifierRest  = [ 'a'-'z' 'A'-'Z' '0'-'9']  //"a-zA-Z0-9"
-let identifier      = identifierStart identifierRest*
+let identifierStart     = [ 'a'-'z' 'A'-'Z' ]
+let identifierRest      = [ 'a'-'z' 'A'-'Z' '0'-'9']  //"a-zA-Z0-9"
+let identifier          = identifierStart identifierRest*
 
-let anyNotQuote     = [ ^ '"' ]
-let stringRegex     = '"' anyNotQuote* '"'
+let anyNotQuote         = [ ^ '"' ]
+let stringRegex         = '"' anyNotQuote* '"'
+
+let commentEnd          = [ ^ '*' ] [ ^ '/' ]
+let anyNotCommentEnd    = commentEnd
+let commentRegex        = "/*" anyNotCommentEnd* "*/"
 
 rule tokens = 
 	parse
 	| whitespace	    { tokens lexbuf }
 	| newline		      { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokens lexbuf }
-	
+	| commentRegex    { tokens lexbuf }
+
 	| numbers	        { NUMBER ( int (lexeme lexbuf |> parseNum)) }
   | stringRegex     { STRING ( string (lexeme lexbuf |> trimStringQuotes)) }
 	| identifier	    { lexeme lexbuf |> checkIfReserved }
@@ -96,6 +101,7 @@ rule tokens =
 	| '<'			        { LESS_THAN }
 	| '>'			        { MORE_THAN }
 
+  | "++"            { APPEND }
 	| '+'			        { ADD }
 	| '-'			        { SUBTRACT }
 	| '/'			        { DIVIDE }
