@@ -6,6 +6,10 @@ type Print =
     | Variable of Identifier
     | Message of string
 
+type PrintLine = 
+    | Variable of Identifier
+    | Message of string
+
 type Vartype =
     | Int
     | Str
@@ -23,17 +27,17 @@ type Operator =
     | LogicalOr     | LogicalAnd
     | Equals        | NotEqual
     | Append
-
-type FunctionCall = {
-    identifier: string
-    arguments: Expression list
-}
     
 and Expression = 
     | Value of Value
     | Expression of Operation
     | Identifier of Identifier
     | FunctionCall of FunctionCall
+
+and FunctionCall = {
+    identifier: string
+    arguments: Expression list
+}
 
 and Operation = {
     op: Operator
@@ -81,8 +85,8 @@ and Block = Statement list
 and Statement =
 | NewVarAssignment of NewVarAssignment
 | ExistingVarAssignment of ExistingVarAssignment
-| Block of Block
 | If of If
 | While of While
 | Print of Print
+| PrintLine of PrintLine
 | Function of Function

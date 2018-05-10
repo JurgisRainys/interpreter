@@ -181,9 +181,9 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
         | NewVarAssignment x -> checkNewVarAssignment x
         | ExistingVarAssignment x -> checkExistingVarAssignment x
         | If x -> checkIf x
-        | Block x -> Analysis(x).run |> mergeAllErrors
         | While x -> checkWhile x
-        | Print x -> Right Int
+        | Print _ -> Right Int
+        | PrintLine _ -> Right Int
         | Function x -> checkFunction x
         
     member this.ast = ast

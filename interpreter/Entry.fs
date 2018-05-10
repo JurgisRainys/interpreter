@@ -19,7 +19,7 @@ module Entry =
                         let message = e.Message
                         let lastToken = new System.String(lexbuf.Lexeme)
                         printfn "Parse failed at line %d, column %d" line column
-                        printfn "Last loken: %s" lastToken
+                        printfn "Last loken: %s" (lastToken + "; Pries sita tokena kazkur klaida.")
                         printfn "Press any key to continue..."
                         System.Console.ReadLine() |> ignore
                         exit 1

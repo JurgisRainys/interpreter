@@ -19,6 +19,7 @@
 %token FUN
 %token RETURN
 %token PRINT
+%token PRINTLN
 %token NOT_EQUAL
 %token EQUALS
 %token LOGICAL_OR
@@ -58,7 +59,8 @@ statement:
     | existingVarAssignment         { ExistingVarAssignment $1 }
     | ifCond                        { If $1 }
     | whileLoop                     { While $1 }
-    | printLine                     { Print $1 }
+    | print                         { Print $1 }
+    | printLine                     { PrintLine $1 }
     | func                          { Function $1 }
 
 newVarAssignment: 
@@ -81,11 +83,18 @@ whileLoop:
     WHILE LEFT_PARENS expression RIGHT_PARENS OPEN_BLOCK statements CLOSE_BLOCK
         {{ condition = $3; body = $6 }}
 
+
+print:
+    | PRINT LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { Print.Variable $3 }
+    | PRINT LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { Print.Message $3 }
+    | PRINT IDENTIFIER SEMICOLON                            { Print.Variable $2 }
+    | PRINT STRING SEMICOLON                                { Print.Message $2 }
+
 printLine:
-    | PRINT LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { Variable $3 }
-    | PRINT LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { Message $3 }
-    | PRINT IDENTIFIER SEMICOLON                            { Variable $2 }
-    | PRINT STRING SEMICOLON                                { Message $2 }
+    | PRINTLN LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { PrintLine.Variable $3 }
+    | PRINTLN LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { PrintLine.Message $3 }
+    | PRINTLN IDENTIFIER SEMICOLON                            { PrintLine.Variable $2 }
+    | PRINTLN STRING SEMICOLON                                { PrintLine.Message $2 }
 
 funArg: vartype IDENTIFIER  {{ vartype = $1; identifier = $2 }}
 
@@ -94,9 +103,12 @@ funArgs:
     | funArg COMMA funArgs  { $1 :: $3 }
 
 func:
-    FUN vartype IDENTIFIER LEFT_PARENS funArgs RIGHT_PARENS 
+    | FUN vartype IDENTIFIER LEFT_PARENS funArgs RIGHT_PARENS 
         OPEN_BLOCK statements returnS CLOSE_BLOCK
             {{ ``type`` = $2; name = $3; args = $5; body = $8; toReturn = $9 }}
+    | FUN vartype IDENTIFIER LEFT_PARENS funArgs RIGHT_PARENS 
+        OPEN_BLOCK returnS CLOSE_BLOCK
+            {{ ``type`` = $2; name = $3; args = $5; body = []; toReturn = $8 }}
 
 returnS:
     | RETURN LEFT_PARENS expression RIGHT_PARENS SEMICOLON  { $3 }

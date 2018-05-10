@@ -1,17 +1,50 @@
-﻿
+﻿FUN INT addOneForReal(INT xd) ->
+    RETURN xd + :one;
+<-
 
-BOOL B1 = :one > :two; B1 = :one > :two;
+FUN INT addOne(INT num) ->
+    RETURN addOneForReal(num);
+<-
 
+INT S = :zero;
 
-
-
+S = addOne(S);
+PRINT "S = ";
+PRINTLN S;
 
 /*
 
-INT XXD = (:one + :two:two) + (:one + (:three + :five));
-XDD = TRUE;
-BOOL XXD = TRUE;
-    STR x = id("x", (("d" ++ "s") ++ "s"));
+INT c = :one:two:three;
+INT x2 = (:one + c) + (:three + :four);
+INT cond = :zero;
+
+IF (c > x2) THEN ->
+    cond = :one;
+<- ELSE ->
+    cond = :two;
+<-
+
+INT X = :zero;
+
+WHILE (X < :five) ->
+    X = X + :one;
+<-
+
+
+INT X = :zero;
+
+PRINT "X = ";
+PRINTLN X;
+
+WHILE (X < :five) ->
+    X = X + :one;
+<-
+
+PRINT "X = ";
+PRINTLN X;
+
+
+STR x = id("x", (("d" ++ "s") ++ "s"));
 
 IF (TRUE OR FALSE) THEN ->
     xd = "SSSSS" ++ "xxddd";

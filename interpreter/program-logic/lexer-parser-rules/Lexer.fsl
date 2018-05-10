@@ -42,7 +42,7 @@ let parseNum (str: string) =
 
 let reserved = [
     "INT"; "STR"; "BOOL"; "TRUE"; "FALSE"; "THEN"; "ELSE";
-    "IF"; "WHILE"; "FUN"; "RETURN"; "PRINT"; "OR"; "AND";
+    "IF"; "WHILE"; "FUN"; "RETURN"; "PRINT"; "PRINTLN"; "OR"; "AND";
 ]
 
 let checkIfReserved (str: String) =
@@ -62,6 +62,7 @@ let checkIfReserved (str: String) =
         | "FUN" -> FUN 
         | "RETURN" -> RETURN 
         | "PRINT" -> PRINT 
+        | "PRINTLN" -> PRINTLN
         | "OR" -> LOGICAL_OR 
         | "AND" -> LOGICAL_AND 
         | _ -> IDENTIFIER("reserved token missing")

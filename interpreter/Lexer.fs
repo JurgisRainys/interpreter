@@ -43,7 +43,7 @@ let parseNum (str: string) =
 
 let reserved = [
     "INT"; "STR"; "BOOL"; "TRUE"; "FALSE"; "THEN"; "ELSE";
-    "IF"; "WHILE"; "FUN"; "RETURN"; "PRINT"; "OR"; "AND";
+    "IF"; "WHILE"; "FUN"; "RETURN"; "PRINT"; "PRINTLN"; "OR"; "AND";
 ]
 
 let checkIfReserved (str: String) =
@@ -63,12 +63,13 @@ let checkIfReserved (str: String) =
         | "FUN" -> FUN 
         | "RETURN" -> RETURN 
         | "PRINT" -> PRINT 
+        | "PRINTLN" -> PRINTLN
         | "OR" -> LOGICAL_OR 
         | "AND" -> LOGICAL_AND 
         | _ -> IDENTIFIER("reserved token missing")
 
 
-# 71 "Lexer.fs"
+# 72 "Lexer.fs"
 let trans : uint16[] array = 
     [| 
     (* State 0 *)
@@ -269,124 +270,124 @@ and tokens  (lexbuf : Microsoft.FSharp.Text.Lexing.LexBuffer<_>) = _fslex_tokens
 and _fslex_tokens  _fslex_state lexbuf =
   match _fslex_tables.Interpret(_fslex_state,lexbuf) with
   | 0 -> ( 
-# 91 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 92 "program-logic/lexer-parser-rules/Lexer.fsl"
                                    tokens lexbuf 
-# 274 "Lexer.fs"
+# 275 "Lexer.fs"
           )
   | 1 -> ( 
-# 92 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 93 "program-logic/lexer-parser-rules/Lexer.fsl"
                                    lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokens lexbuf 
-# 279 "Lexer.fs"
+# 280 "Lexer.fs"
           )
   | 2 -> ( 
-# 93 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 94 "program-logic/lexer-parser-rules/Lexer.fsl"
                                     tokens lexbuf 
-# 284 "Lexer.fs"
+# 285 "Lexer.fs"
           )
   | 3 -> ( 
-# 95 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 96 "program-logic/lexer-parser-rules/Lexer.fsl"
                                     NUMBER ( int (lexeme lexbuf |> parseNum)) 
-# 289 "Lexer.fs"
+# 290 "Lexer.fs"
           )
   | 4 -> ( 
-# 96 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 97 "program-logic/lexer-parser-rules/Lexer.fsl"
                                      STRING ( string (lexeme lexbuf |> trimStringQuotes)) 
-# 294 "Lexer.fs"
+# 295 "Lexer.fs"
           )
   | 5 -> ( 
-# 97 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 98 "program-logic/lexer-parser-rules/Lexer.fsl"
                                    lexeme lexbuf |> checkIfReserved 
-# 299 "Lexer.fs"
+# 300 "Lexer.fs"
           )
   | 6 -> ( 
-# 99 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 100 "program-logic/lexer-parser-rules/Lexer.fsl"
                                  NOT_EQUAL 
-# 304 "Lexer.fs"
+# 305 "Lexer.fs"
           )
   | 7 -> ( 
-# 100 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 101 "program-logic/lexer-parser-rules/Lexer.fsl"
                                  EQUALS 
-# 309 "Lexer.fs"
+# 310 "Lexer.fs"
           )
   | 8 -> ( 
-# 101 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 102 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   LESS_THAN 
-# 314 "Lexer.fs"
+# 315 "Lexer.fs"
           )
   | 9 -> ( 
-# 102 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 103 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   MORE_THAN 
-# 319 "Lexer.fs"
+# 320 "Lexer.fs"
           )
   | 10 -> ( 
-# 104 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 105 "program-logic/lexer-parser-rules/Lexer.fsl"
                                      APPEND 
-# 324 "Lexer.fs"
+# 325 "Lexer.fs"
           )
   | 11 -> ( 
-# 105 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 106 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   ADD 
-# 329 "Lexer.fs"
+# 330 "Lexer.fs"
           )
   | 12 -> ( 
-# 106 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 107 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   SUBTRACT 
-# 334 "Lexer.fs"
+# 335 "Lexer.fs"
           )
   | 13 -> ( 
-# 107 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 108 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   DIVIDE 
-# 339 "Lexer.fs"
+# 340 "Lexer.fs"
           )
   | 14 -> ( 
-# 108 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 109 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   MULTIPLY 
-# 344 "Lexer.fs"
+# 345 "Lexer.fs"
           )
   | 15 -> ( 
-# 110 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 111 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   COMMA 
-# 349 "Lexer.fs"
+# 350 "Lexer.fs"
           )
   | 16 -> ( 
-# 111 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 112 "program-logic/lexer-parser-rules/Lexer.fsl"
                                  OPEN_BLOCK 
-# 354 "Lexer.fs"
+# 355 "Lexer.fs"
           )
   | 17 -> ( 
-# 112 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 113 "program-logic/lexer-parser-rules/Lexer.fsl"
                                  CLOSE_BLOCK 
-# 359 "Lexer.fs"
+# 360 "Lexer.fs"
           )
   | 18 -> ( 
-# 113 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 114 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   LEFT_PARENS 
-# 364 "Lexer.fs"
+# 365 "Lexer.fs"
           )
   | 19 -> ( 
-# 114 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 115 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   RIGHT_PARENS 
-# 369 "Lexer.fs"
+# 370 "Lexer.fs"
           )
   | 20 -> ( 
-# 115 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 116 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   SEMICOLON 
-# 374 "Lexer.fs"
+# 375 "Lexer.fs"
           )
   | 21 -> ( 
-# 116 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 117 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   ASSIGNMENT 
-# 379 "Lexer.fs"
+# 380 "Lexer.fs"
           )
   | 22 -> ( 
-# 118 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 119 "program-logic/lexer-parser-rules/Lexer.fsl"
                                   EOF 
-# 384 "Lexer.fs"
+# 385 "Lexer.fs"
           )
   | 23 -> ( 
-# 119 "program-logic/lexer-parser-rules/Lexer.fsl"
+# 120 "program-logic/lexer-parser-rules/Lexer.fsl"
                                  raise (Exception (sprintf "SyntaxError: Unexpected char: '%s' Line: %d Column: %d" (lexeme lexbuf) (lexbuf.StartPos.Line+1) lexbuf.StartPos.Column)) 
-# 389 "Lexer.fs"
+# 390 "Lexer.fs"
           )
   | _ -> failwith "tokens"
 
