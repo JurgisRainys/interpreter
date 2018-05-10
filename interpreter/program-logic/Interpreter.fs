@@ -23,7 +23,7 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
         vars.AddRange(varsInFunctionScope)
         vars.Add({ identifier = "RETURN"; ``type`` = func.``type``; value = func.toReturn |> calculateExpr })
 
-        let returned = Scope(func.body, vars, functions).run
+        let returned = Scope(func.body, new List<Var>(vars), new List<Function>(functions)).run
         
         vars.RemoveRange(vars.Count - varsInFunctionScope.Length - 1, varsInFunctionScope.Length + 1)
         match returned with
@@ -82,14 +82,16 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
 
     let handleIf (ifCond: If) =
         let cond = getValueOfCondition ifCond.condition
-        if cond = true then Scope(ifCond.trueBranch, vars, functions).run |> ignore
-        else Scope(ifCond.falseBranch, vars, functions).run |> ignore
+        if cond = true then Scope(ifCond.trueBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
+        else Scope(ifCond.falseBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
 
     let handleWhile (whileLoop: While) =
         let xx = vars
         let mutable cond = getValueOfCondition whileLoop.condition
+        let vars = new List<Var>(vars)
+        let funcs = new List<Function>(functions)
         while (cond) do 
-            Scope(whileLoop.body, vars, functions).run 
+            Scope(whileLoop.body, vars, funcs).run 
             cond <- getValueOfCondition whileLoop.condition
             
     let handlePrintLine (p: PrintLine) =
