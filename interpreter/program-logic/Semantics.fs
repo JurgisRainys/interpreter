@@ -122,7 +122,7 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
     let analyzeBlock (ast: Statement list) (varsInScope: List<Var>) (functionsInScope: List<Fun>): AnalysisResult =
         //let results = Analysis(ast, varsInScope).run |> List.mapi (fun i res -> i + 1, res ) |> List.filter (fun (i, res) -> res |> Either.isLeft)
         let results = 
-            Analysis(ast, varsInScope, functionsInScope, nestLevel + 1).run 
+            Analysis(ast, new List<Var>(varsInScope), new List<Fun>(functionsInScope), nestLevel + 1).run 
             |> List.mapi (fun i res -> i + 1, res ) 
             |> List.filter (fun (i, res) -> res |> Either.isLeft)
         match results with
@@ -137,8 +137,8 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
         | Left _ as err -> err
         | Right ``type`` when ``type`` <> Bool -> Left ("If condition should be a boolean type expression. This expression evaluates to: " + ``type``.ToString())
         | Right _ -> 
-            let trueBrErrors = analyzeBlock ifCond.trueBranch (new List<Var>(vars)) functions
-            let falseBrErrors = analyzeBlock ifCond.falseBranch (new List<Var>(vars)) functions
+            let trueBrErrors = analyzeBlock ifCond.trueBranch vars functions
+            let falseBrErrors = analyzeBlock ifCond.falseBranch vars functions
 
             match trueBrErrors, falseBrErrors with
             | Right _, Right _ -> Right (Int) // tai turetu grazint `None`, bet ne optionas

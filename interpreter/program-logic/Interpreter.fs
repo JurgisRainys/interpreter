@@ -10,6 +10,14 @@ type Var = {
 }
 
 type Scope (statements: Statement list, vars: List<Var>, functions: List<Function>) =
+    let analyzeBlock (statements: Statement list) (vars: List<Var>) (functions: List<Function>) =
+        let varsBeforeBlock = vars.Count;
+        let funcsBeforeBlock = functions.Count;
+        let toReturn = Scope(statements, vars, functions).run
+        if vars.Count <> 0 then vars.RemoveRange(varsBeforeBlock - 1, vars.Count - varsBeforeBlock) 
+        if functions.Count <> 0 then functions.RemoveRange(funcsBeforeBlock - 1, functions.Count - funcsBeforeBlock) 
+        toReturn
+
     let identifierValue i = vars.Find(fun x -> x.identifier = i).value
 
     let rec functionCallValue (call: FunctionCall) = 
@@ -23,7 +31,7 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
         vars.AddRange(varsInFunctionScope)
         vars.Add({ identifier = "RETURN"; ``type`` = func.``type``; value = func.toReturn |> calculateExpr })
 
-        let returned = Scope(func.body, new List<Var>(vars), new List<Function>(functions)).run
+        let returned = Scope(func.body, vars, functions).run
         
         vars.RemoveRange(vars.Count - varsInFunctionScope.Length - 1, varsInFunctionScope.Length + 1)
         match returned with
@@ -82,17 +90,23 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
 
     let handleIf (ifCond: If) =
         let cond = getValueOfCondition ifCond.condition
-        if cond = true then Scope(ifCond.trueBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
-        else Scope(ifCond.falseBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
+        if cond = true then analyzeBlock ifCond.trueBranch vars functions
+        //Scope(ifCond.trueBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
+        else analyzeBlock ifCond.falseBranch vars functions
+        //Scope(ifCond.falseBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
 
     let handleWhile (whileLoop: While) =
         let xx = vars
         let mutable cond = getValueOfCondition whileLoop.condition
-        let vars = new List<Var>(vars)
-        let funcs = new List<Function>(functions)
+        let varsBeforeCount = vars.Count
+        let funcBeforeCount = functions.Count
+
         while (cond) do 
-            Scope(whileLoop.body, vars, funcs).run 
+            Scope(whileLoop.body, vars, functions).run |> ignore
             cond <- getValueOfCondition whileLoop.condition
+
+        if vars.Count <> 0 then vars.RemoveRange(varsBeforeCount - 1, vars.Count - varsBeforeCount) 
+        if functions.Count <> 0 then functions.RemoveRange(funcBeforeCount - 1, functions.Count - varsBeforeCount) 
             
     let handlePrintLine (p: PrintLine) =
         match p with
@@ -111,7 +125,7 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
         match statement with 
         | NewVarAssignment x -> handleNewVarAssignment x
         | ExistingVarAssignment x -> handleVarAssignment x
-        | If x -> handleIf x
+        | If x -> handleIf x |> ignore
         | While x -> handleWhile x
         | Print x -> handlePrint x
         | PrintLine x -> handlePrintLine x
