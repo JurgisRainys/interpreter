@@ -1,16 +1,20 @@
-﻿FUN INT addOneForReal(INT xd) ->
+﻿FUN INT addOne(INT xd) ->
     RETURN xd + :one;
 <-
 
-FUN INT addOne(INT num) ->
-    RETURN addOneForReal(num);
-<-
 
-INT S = :zero;
 
-S = addOne(S);
-PRINT "S = ";
-PRINTLN S;
+IF (TRUE OR FALSE) THEN ->
+    STR xd = "SSSSS" ++ "xxddd";
+    INT XXD = :one;
+    IF (TRUE OR FALSE) THEN ->
+        xd = "SSSSS" ++ "xxddd";
+        XXD = :one;
+
+    <- ELSE ->
+        xd = ":two";
+    <-
+<- ELSE -> xd = ":one;"; <-
 
 /*
 

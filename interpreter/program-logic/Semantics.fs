@@ -161,20 +161,46 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
         if functions.Select(fun x -> x.identifier).Contains(func.name) then
             Left("Trying to redeclare a function. Function with such name already exists. Name: " + func.name)
         else
-            let addTemporary = func.args |> List.map (fun arg -> { identifier = arg.identifier; vartype = arg.vartype })
-            vars.AddRange(addTemporary)                         // gaidiskas workaroundas, bet jau atsibodo daryt
-            let returnType = func.toReturn |> expressionType    // funkciju priimami kintamieji negali kartoti vardu
-            addTemporary |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+            let uniqueArgsCount = func.args |> Seq.distinctBy (fun x -> x.identifier) |> Seq.length
+            if (uniqueArgsCount <> func.args.Length) then 
+                Left ("Function argument list contains variables with same names. Function: " + func.name)
+            else
+                let addTemporary = func.args |> List.map (fun arg -> { identifier = arg.identifier; vartype = arg.vartype })
+                vars.AddRange(addTemporary)                         // gaidiskas workaroundas, bet jau atsibodo daryt
+            
+                let funcBodyAnalysisResult = analyzeBlock func.body vars functions
 
-            match returnType with
-            | Left _ as err -> err
-            | Right returnsExpressionWithType ->
-                if (func.``type`` <> returnsExpressionWithType) then
-                    Left ("Function returns an expression, that doesn't match it's return type. Func type: " + func.``type``.ToString() 
-                    + "; returns expression of type: " + returnsExpressionWithType.ToString())
-                else 
-                    functions.Add({ identifier = func.name; ``type`` = func.``type``; args = func.args }) 
-                    Right (func.``type``)
+                match funcBodyAnalysisResult with
+                | Left _ as err -> 
+                    addTemporary |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+                    err
+                | Right _ ->
+                    let returnType = func.toReturn |> expressionType    // funkciju priimami kintamieji negali kartoti vardu
+                    addTemporary |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+            
+                    match returnType with
+                    | Left _ as err -> err
+                    | Right returnsExpressionWithType ->
+                        if (func.``type`` <> returnsExpressionWithType) then
+                            Left ("Function returns an expression, that doesn't match it's return type. Func type: " + func.``type``.ToString() 
+                            + "; returns expression of type: " + returnsExpressionWithType.ToString())
+                        else 
+                            functions.Add({ identifier = func.name; ``type`` = func.``type``; args = func.args }) 
+                            Right (func.``type``)
+
+    let checkPrint (print: Print) = 
+        match print with
+        | Print.Message m -> Right Int
+        | Print.Variable v -> 
+            if (vars.Select(fun x -> x.identifier).Contains(v)) then Right (Int)
+            else Left ("Trying to print undefined variable.")
+
+    let checkPrintLine (print: PrintLine) = 
+        match print with
+        | PrintLine.Message m -> Right Int
+        | PrintLine.Variable v -> 
+            if (vars.Select(fun x -> x.identifier).Contains(v)) then Right (Int)
+            else Left ("Trying to print undefined variable.")
 
     let checkSemanticValidity (statement: Statement) = 
         match statement with 
@@ -182,8 +208,8 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
         | ExistingVarAssignment x -> checkExistingVarAssignment x
         | If x -> checkIf x
         | While x -> checkWhile x
-        | Print _ -> Right Int
-        | PrintLine _ -> Right Int
+        | Print x -> checkPrint x
+        | PrintLine x -> checkPrintLine x
         | Function x -> checkFunction x
         
     member this.ast = ast

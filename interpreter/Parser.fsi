@@ -86,6 +86,7 @@ type nonTerminalId =
     | NONTERM_printLine
     | NONTERM_funArg
     | NONTERM_funArgs
+    | NONTERM_funArgsInParens
     | NONTERM_func
     | NONTERM_returnS
     | NONTERM_vartype

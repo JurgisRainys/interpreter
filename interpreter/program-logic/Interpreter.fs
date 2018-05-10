@@ -9,8 +9,6 @@ type Var = {
     value: Value
 }
 
-//type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestLevel: int) =
-
 type Scope (statements: Statement list, vars: List<Var>, functions: List<Function>) =
     let identifierValue i = vars.Find(fun x -> x.identifier = i).value
 
@@ -127,6 +125,4 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
 
 let interpret (ast: Statement list) =
     let scope = Scope (ast, new List<Var>(), new List<Function>())
-    let x = scope.run |> ignore
-
-    System.Console.ReadKey() |> ignore
+    scope.run |> ignore
