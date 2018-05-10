@@ -137,9 +137,8 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
         | Left _ as err -> err
         | Right ``type`` when ``type`` <> Bool -> Left ("If condition should be a boolean type expression. This expression evaluates to: " + ``type``.ToString())
         | Right _ -> 
-            //let trueBrErrors = analyzeBlock ifCond.trueBranch vars |> List.filter (fun x -> x |> Either.isLeft) 
-            let trueBrErrors = analyzeBlock ifCond.trueBranch vars functions
-            let falseBrErrors = analyzeBlock ifCond.falseBranch vars functions
+            let trueBrErrors = analyzeBlock ifCond.trueBranch (new List<Var>(vars)) functions
+            let falseBrErrors = analyzeBlock ifCond.falseBranch (new List<Var>(vars)) functions
 
             match trueBrErrors, falseBrErrors with
             | Right _, Right _ -> Right (Int) // tai turetu grazint `None`, bet ne optionas
