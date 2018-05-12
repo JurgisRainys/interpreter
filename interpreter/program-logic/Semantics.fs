@@ -120,7 +120,6 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
         
     // nestlevelis padaro, kad graziai erroras formuojamas butu, kai nestinami blokai
     let analyzeBlock (ast: Statement list) (varsInScope: List<Var>) (functionsInScope: List<Fun>): AnalysisResult =
-        //let results = Analysis(ast, varsInScope).run |> List.mapi (fun i res -> i + 1, res ) |> List.filter (fun (i, res) -> res |> Either.isLeft)
         let results = 
             Analysis(ast, new List<Var>(varsInScope), new List<Fun>(functionsInScope), nestLevel + 1).run 
             |> List.mapi (fun i res -> i + 1, res ) 
@@ -164,25 +163,49 @@ type Analysis (ast: Statement list, vars: List<Var>, functions: List<Fun>, nestL
             if (uniqueArgsCount <> func.args.Length) then 
                 Left ("Function argument list contains variables with same names. Function: " + func.name)
             else
-                let addTemporary = func.args |> List.map (fun arg -> { identifier = arg.identifier; vartype = arg.vartype })
-                vars.AddRange(addTemporary)                         // gaidiskas workaroundas, bet jau atsibodo daryt
+                let tempVars = func.args |> List.map (fun arg -> { identifier = arg.identifier; vartype = arg.vartype })
+                let tempFunc = { ``type`` = func.``type``; identifier = func.name; args = func.args }
+                vars.AddRange(tempVars)                         // gaidiskas workaroundas, bet jau atsibodo daryt
+                functions.Add(tempFunc)                         // gaidiskas workaroundas, bet jau atsibodo daryt
             
                 let funcBodyAnalysisResult = analyzeBlock func.body vars functions
 
                 match funcBodyAnalysisResult with
                 | Left _ as err -> 
-                    addTemporary |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+                    tempVars |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+                    functions.Remove(tempFunc) |> ignore
                     err
                 | Right _ ->
+                    let inBodyVars = 
+                        func.body 
+                        |> List.fold (fun acc x -> 
+                            match x with
+                            | NewVarAssignment a -> ({ Var.identifier = a.identifier; vartype = a.vartype } :: acc)
+                            | _ -> acc
+                        ) []
+                    vars.AddRange(inBodyVars)
+
+                    let inBodyFuncs = 
+                        func.body 
+                        |> List.fold (fun acc x -> 
+                            match x with
+                            | Function f -> ({ Fun.identifier = f.name; ``type`` = f.``type``; args = f.args } :: acc)
+                            | _ -> acc
+                        ) []
+                    functions.AddRange(inBodyFuncs)
+
                     let returnType = func.toReturn |> expressionType    // funkciju priimami kintamieji negali kartoti vardu
-                    addTemporary |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
-            
+                    tempVars |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+                    inBodyVars |> List.iter (fun xx -> vars.Remove(xx) |> ignore)
+                    functions.Remove(tempFunc) |> ignore
+
                     match returnType with
                     | Left _ as err -> err
                     | Right returnsExpressionWithType ->
                         if (func.``type`` <> returnsExpressionWithType) then
                             Left ("Function returns an expression, that doesn't match it's return type. Func type: " + func.``type``.ToString() 
                             + "; returns expression of type: " + returnsExpressionWithType.ToString())
+
                         else 
                             functions.Add({ identifier = func.name; ``type`` = func.``type``; args = func.args }) 
                             Right (func.``type``)

@@ -1,7 +1,43 @@
-﻿IF (TRUE OR FALSE) THEN ->
-    STR xd = "SSSSS" ++ "xxddd";
+﻿FUN INT fib(INT fibNumberNr) ->
+    FUN INT recursive(INT n, INT current, INT previous) ->
+        INT toReturn = current;
 
-<- ELSE -> xd = ":one;"; <-
+        IF (n > :zero) THEN ->
+            toReturn = current + recursive(n - :one, current + previous, current);
+        <-
+
+        RETURN toReturn;
+    <-
+
+    INT x = recursive(fibNumberNr - :two, :one, :zero); 
+    RETURN x;
+<-
+
+INT XX = fib(:four);
+
+PRINT "5 fib skaicius = ";
+PRINTLN XX;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 
