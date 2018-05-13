@@ -34,7 +34,8 @@ module Entry =
         |> parse
         |> Semantics.analyze 
         |> Option.map Interpreter.interpret
+        |> ignore
 
-        printfn "Press any key to continue..."
+        printfn "\nPress any key to continue..."
         System.Console.ReadLine() |> ignore
         0

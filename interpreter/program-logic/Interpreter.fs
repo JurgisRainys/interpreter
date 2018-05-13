@@ -2,40 +2,98 @@
 
 open AST
 open System.Collections.Generic
+open System.Linq
+open System.IO
+open System.Text
 
-type Var = {
-    identifier: Identifier
-    ``type``: Vartype
+type VarName = Identifier
+type FuncName = Identifier
+
+type VarValue = {
+    vartype: Vartype
     value: Value
 }
 
-type Scope (statements: Statement list, vars: List<Var>, functions: List<Function>) =
-    let analyzeBlock (statements: Statement list) (vars: List<Var>) (functions: List<Function>) =
-        let varsBeforeBlock = vars.Count;
-        let funcsBeforeBlock = functions.Count;
-        let toReturn = Scope(statements, vars, functions).run
-        if vars.Count <> 0 then vars.RemoveRange(varsBeforeBlock - 1, vars.Count - varsBeforeBlock) 
-        if functions.Count <> 0 then functions.RemoveRange(funcsBeforeBlock - 1, functions.Count - funcsBeforeBlock) 
-        toReturn
+let newDictionary<'a, 'b when 'a : equality> = new Dictionary<'a, 'b>()
 
-    let identifierValue i = vars.Find(fun x -> x.identifier = i).value
+let copyDictionaryByValue (dictionary: Dictionary<'a, 'b>) =
+    let acc = new Dictionary<'a, 'b>()
+    dictionary
+    |> Seq.map ``|KeyValue|``
+    |> Seq.iter (fun (key, value) ->
+        acc.[key] <- value
+    ) 
+    acc
 
-    let rec functionCallValue (call: FunctionCall) = 
-        let func = functions.Find(fun x -> x.name = call.identifier)
-        let varsInFunctionScope = 
-            call.arguments 
-            |> List.map calculateExpr
-            |> List.zip func.args
-            |> List.map (fun (arg, value) -> { identifier = arg.identifier; ``type`` = arg.vartype; value = value })
+type Scope (statements: Statement list,
+            vars: Dictionary<VarName, VarValue>,
+            funcs: Dictionary<FuncName, Function>,
+            parentScope: Scope option,
+            output: StreamWriter option) as this =
 
-        vars.AddRange(varsInFunctionScope)
-        vars.Add({ identifier = "RETURN"; ``type`` = func.``type``; value = func.toReturn |> calculateExpr })
+    let walkBlock (statements: Statement list) =
+        Scope(statements, newDictionary, newDictionary, Some this, None).run
 
-        let returned = Scope(func.body, vars, functions).run
-        
-        vars.RemoveRange(vars.Count - varsInFunctionScope.Length - 1, varsInFunctionScope.Length + 1)
-        match returned with
+    let getVarValue identifier =
+        match this.getVarValue identifier with
         | Some value -> value
+
+    let getFunc name =
+        match this.getFunc name with
+        | Some value -> value
+
+    let tryGetVarValue identifier =
+        try Some (getVarValue identifier)
+        with _ -> None
+
+    let tryGetFunc name =
+        try Some (getFunc name)
+        with _ -> None
+       
+    //overwrites parent values with subscope values
+    let combineCurrentWithParent (parentScopeDictionary: Dictionary<'a, 'b>) (currentScopeDictionary: Dictionary<'a, 'b>): Dictionary<'a, 'b> =
+        let parent = parentScopeDictionary |> copyDictionaryByValue
+        currentScopeDictionary
+        |> Seq.map ``|KeyValue|``
+        |> Seq.iter (fun (key, value) ->
+            parent.[key] <- value
+        )
+        parent
+
+    let rec walkFunc (f: Function) (providedArguments: Expression list) =
+        let innerScopeVars = 
+            providedArguments
+            |> List.map calculateExpr
+            |> List.zip f.args
+            |> List.fold (fun acc (arg, value) -> 
+                acc.[arg.identifier] <- { vartype = arg.vartype; value = value }
+                acc
+            ) newDictionary: Dictionary<VarName, VarValue>
+
+        let innerScopeFuncs = newDictionary |> fun x -> x.Add(f.name, f); x
+
+        let bodyWithReturnStatement = 
+            f.body @ [ NewVarAssignment { 
+                identifier = "RETURN"; 
+                vartype = f.``type``; 
+                value = f.toReturn } 
+            ]
+
+        let funcReturned = 
+            Scope(bodyWithReturnStatement,
+                    innerScopeVars, 
+                    innerScopeFuncs, 
+                    Some this,
+                    output).run
+
+        match funcReturned with
+        | Some value -> value
+
+    and functionCallValue (call: FunctionCall) = 
+        let func = getFunc call.identifier
+        walkFunc func call.arguments
+        
+    and identifierValue i = (getVarValue i).value
 
     and operationValue (o: Operation): Value = 
         let (leftVal: Value, rightVal: Value) = o.left |> calculateExpr, o.right |> calculateExpr
@@ -69,20 +127,13 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
         | FunctionCall c -> functionCallValue c
     
     let handleNewVarAssignment (assignment: NewVarAssignment) =
-        vars.Add(
-            {
-            identifier = assignment.identifier
-            ``type`` = assignment.vartype
+        vars.[assignment.identifier] <- {
+            vartype = assignment.vartype
             value = (assignment.value |> calculateExpr) 
-        })
+        }
 
     let handleVarAssignment (assignment: ExistingVarAssignment) =
-        let varIdx = vars.FindIndex(fun x -> x.identifier = assignment.identifier)
-        vars.[varIdx] <- { 
-            identifier = vars.[varIdx].identifier
-            ``type`` = vars.[varIdx].``type``
-            value = (assignment.value |> calculateExpr)
-        }
+        this.setVarValue assignment.identifier (assignment.value |> calculateExpr)
 
     let getValueOfCondition (boolExpr: Expression) =
         match boolExpr |> calculateExpr with
@@ -90,36 +141,43 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
 
     let handleIf (ifCond: If) =
         let cond = getValueOfCondition ifCond.condition
-        if cond = true then analyzeBlock ifCond.trueBranch vars functions
-        //Scope(ifCond.trueBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
-        else analyzeBlock ifCond.falseBranch vars functions
-        //Scope(ifCond.falseBranch, new List<Var>(vars), new List<Function>(functions)).run |> ignore
+        if cond then walkBlock ifCond.trueBranch 
+        else walkBlock ifCond.falseBranch 
 
     let handleWhile (whileLoop: While) =
-        let xx = vars
         let mutable cond = getValueOfCondition whileLoop.condition
-        let varsBeforeCount = vars.Count
-        let funcBeforeCount = functions.Count
 
         while (cond) do 
-            Scope(whileLoop.body, vars, functions).run |> ignore
+            walkBlock whileLoop.body |> ignore
             cond <- getValueOfCondition whileLoop.condition
 
-        if vars.Count <> 0 then vars.RemoveRange(varsBeforeCount - 1, vars.Count - varsBeforeCount) 
-        if functions.Count <> 0 then functions.RemoveRange(funcBeforeCount - 1, functions.Count - varsBeforeCount) 
-            
-    let handlePrintLine (p: PrintLine) =
+    let text (t: Text) =
+        match t with
+        | Message msg -> msg
+        | Variable ident -> ((getVarValue ident).value).ToString()
+
+    let handleConsolePrint (p: PrintType) =
         match p with
-        | PrintLine.Message msg -> printfn "%s" msg
-        | PrintLine.Variable ident -> printfn "%A" (vars.Find(fun x -> x.identifier = ident).value)
+        | PrintSingle x -> printf "%s" (text x)
+        | PrintLine x -> printfn "%s" (text x)
+
+    let handleFilePrint (p: PrintFile) =
+        let print (msg: string) = 
+            let streamWriter = new StreamWriter(p.path, not (p.overwrite))
+            streamWriter.WriteLine(msg)
+            streamWriter.Close()
+
+        match p.printType with
+        | PrintSingle x -> print (text x) 
+        | PrintLine x -> print ((text x) + "\n")
 
     let handlePrint (p: Print) =
         match p with
-        | Print.Message msg -> printf "%s" msg
-        | Print.Variable ident -> printf "%A" (vars.Find(fun x -> x.identifier = ident).value)
+        | PrintFile x -> handleFilePrint x
+        | PrintConsole x -> handleConsolePrint x
 
     let handleFunctionDeclaration (f: Function) =
-        functions.Add(f)
+        funcs.[f.name] <- f
 
     let executeStatement statement =
         match statement with 
@@ -128,17 +186,38 @@ type Scope (statements: Statement list, vars: List<Var>, functions: List<Functio
         | If x -> handleIf x |> ignore
         | While x -> handleWhile x
         | Print x -> handlePrint x
-        | PrintLine x -> handlePrintLine x
         | Function x -> handleFunctionDeclaration x
+
+    member private this.setVarValue identifier value =
+        if vars.ContainsKey identifier then
+            vars.[identifier] <- {
+                vartype = vars.[identifier].vartype
+                value = value
+            }
+        else 
+            parentScope 
+            |> Option.map (fun x -> x.setVarValue identifier value) 
+            |> ignore
+
+    member private this.getVarValue identifier =
+        if vars.ContainsKey identifier then Some vars.[identifier]
+        else 
+            parentScope 
+            |> Option.bind (fun scope -> scope.getVarValue identifier)
+
+    member private this.getFunc name =
+        if funcs.ContainsKey name then Some funcs.[name]
+        else 
+            parentScope 
+            |> Option.bind (fun scope -> scope.getFunc name)
 
     member this.run: Value option =
         statements
         |> List.iter executeStatement
+        tryGetVarValue "RETURN" |> Option.map (fun x -> x.value)
 
-        let v = vars
-        let f = functions
-        vars |> List.ofSeq |> List.tryFind (fun x -> x.identifier = "RETURN") |> Option.map (fun x -> x.value)
+    new ast = Scope(ast, newDictionary, newDictionary, None, None)
 
 let interpret (ast: Statement list) =
-    let scope = Scope (ast, new List<Var>(), new List<Function>())
+    let scope = Scope ast
     scope.run |> ignore

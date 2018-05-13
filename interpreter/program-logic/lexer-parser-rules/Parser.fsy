@@ -20,6 +20,10 @@
 %token RETURN
 %token PRINT
 %token PRINTLN
+%token FILE
+%token OVERWRITE
+%token OPEN
+%token CLOSE
 %token NOT_EQUAL
 %token EQUALS
 %token LOGICAL_OR
@@ -60,7 +64,6 @@ statement:
     | ifCond                        { If $1 }
     | whileLoop                     { While $1 }
     | print                         { Print $1 }
-    | printLine                     { PrintLine $1 }
     | func                          { Function $1 }
 
 newVarAssignment: 
@@ -83,18 +86,25 @@ whileLoop:
     WHILE LEFT_PARENS expression RIGHT_PARENS OPEN_BLOCK statements CLOSE_BLOCK
         {{ condition = $3; body = $6 }}
 
+printFile: 
+    | FILE STRING printType             {{ path = $2; printType = $3; overwrite = false }}
+    | FILE OVERWRITE STRING printType   {{ path = $3; printType = $4; overwrite = true }}
+
+printConsole: printType         { PrintConsole $1 }
+
+printType:
+    | PRINT text            { PrintSingle $2 }
+    | PRINTLN text          { PrintLine $2 }
 
 print:
-    | PRINT LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { Print.Variable $3 }
-    | PRINT LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { Print.Message $3 }
-    | PRINT IDENTIFIER SEMICOLON                            { Print.Variable $2 }
-    | PRINT STRING SEMICOLON                                { Print.Message $2 }
+    | printFile     { PrintFile $1 }
+    | printConsole  { $1 }
 
-printLine:
-    | PRINTLN LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { PrintLine.Variable $3 }
-    | PRINTLN LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { PrintLine.Message $3 }
-    | PRINTLN IDENTIFIER SEMICOLON                            { PrintLine.Variable $2 }
-    | PRINTLN STRING SEMICOLON                                { PrintLine.Message $2 }
+text:
+    | LEFT_PARENS IDENTIFIER RIGHT_PARENS SEMICOLON   { Variable $2 }
+    | LEFT_PARENS STRING RIGHT_PARENS SEMICOLON       { Message $2 }
+    | IDENTIFIER SEMICOLON                            { Variable $1 }
+    | STRING SEMICOLON                                { Message $1 }
 
 funArg: vartype IDENTIFIER  {{ vartype = $1; identifier = $2 }}
 

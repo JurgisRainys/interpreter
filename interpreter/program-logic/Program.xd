@@ -1,9 +1,93 @@
-﻿IF (TRUE OR FALSE) THEN ->
-    STR xd = "SSSSS" ++ "xxddd";
+﻿
+FUN INT fibRecursive(INT n) ->
+    FUN INT recursive(INT n, INT current, INT previous) ->
+        INT result = current;
 
-<- ELSE -> xd = ":one;"; <-
+        IF (n > :zero) THEN ->
+            result = recursive(n - :one, current + previous, current);
+        <-
+        
+        RETURN result;
+    <-
+
+    INT result = -:one;
+
+    IF (n > :zero) THEN ->
+        IF (n == :one) THEN -> result = :zero; <-
+        ELSE -> 
+            IF (n == :two) THEN -> result = :one; <-
+            ELSE -> result = recursive(n - :two, :one, :zero); <-
+        <-
+    <-
+
+    RETURN result;
+<-
+
+FUN INT fibLoop(INT n) ->
+    INT result = -:one;
+
+    IF (n == :one) THEN -> result = :zero; <-
+    ELSE -> 
+        IF (n == :two) THEN -> result = :one; <-
+        ELSE -> 
+            n = n - :one;
+            INT previous = :zero;
+            INT current = :one;
+            WHILE (n > :zero) ->
+                result = current;
+
+                INT temp = previous;
+                previous = current;
+                current = current + temp;
+                n = n - :one;
+            <-
+        <-
+    <-
+    RETURN result;
+<-
+
+INT fibNum1 = fibRecursive(:one:zero);
+INT fibNum2 = fibLoop(:one:zero);
+
+PRINT "10 fibonacio skaicius apskaiciuotas rekursyviai: ";
+PRINTLN fibNum1;
+
+PRINT "10 fibonacio skaicius apskaiciuotas su ciklu: ";
+PRINTLN fibNum2;
+
+FILE OVERWRITE "results.txt" PRINT "10 fibonacio skaicius apskaiciuotas rekursyviai: ";
+FILE "results.txt" PRINTLN fibNum1;
+
+FILE "results.txt" PRINT "10 fibonacio skaicius apskaiciuotas su ciklu: ";
+FILE "results.txt" PRINTLN fibNum2;
+
 
 /*
+
+PRINT "previous and current: ";
+PRINT previous;
+PRINT " ";
+PRINTLN current;
+
+FUN INT fib(INT n) ->
+    INT t = :one;
+    FUN INT recursive(INT n, INT current, INT previous) ->
+        INT toReturn = current;
+
+        IF (n > :zero) THEN ->
+            toReturn = current + recursive(n - :one, current + previous, current);
+        <-
+
+        RETURN toReturn;
+    <-
+
+    RETURN recursive(n - :two, :one, :zero); 
+<-
+
+INT XX = fib(:four);
+
+PRINT "5 fib skaicius = ";
+PRINTLN XX;
 
 INT c = :one:two:three;
 INT x2 = (:one + c) + (:three + :four);
