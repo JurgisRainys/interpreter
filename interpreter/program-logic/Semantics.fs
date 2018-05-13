@@ -10,6 +10,11 @@ type Func = {
     args: FunArg list
 }
 
+type TypeWithLevel = {
+    vartype: Vartype
+    nestLevel: int
+}
+
 type SemanticError = string
 
 // realiai vartype option turetu grazint, bet tingiu apsikraut, nes belenkiek papildomo matchinimo reikes.
@@ -24,7 +29,7 @@ let mapToDictionary (map: Map<'key, 'value>) =
     acc
 
 type Analysis (ast: Statement list, 
-                vars: Dictionary<Identifier, Vartype>, 
+                vars: Dictionary<Identifier, TypeWithLevel>, 
                 funcs: Dictionary<Identifier, Func>,
                 nestLevel: int) =
 
@@ -116,8 +121,9 @@ type Analysis (ast: Statement list,
                 | Right _ -> Right funType
 
     and identifierType i =
-        match getVar i with
-        | Some ``var`` -> Right ``var``
+        let valOpt = getVar i |> Option.map (fun typeWithLvl -> typeWithLvl.vartype)
+        match valOpt with
+        | Some value -> Right value
         | None -> Left ("No such identifier declared previously. Identifier: " + i + "\n")
 
     and operationType o =
@@ -140,9 +146,12 @@ type Analysis (ast: Statement list,
         match expressionType(newA.value) with
         | Left _ as err -> err
         | Right ``type`` when ``type`` = newA.vartype -> 
-            //if varsContain newA.identifier then Left ("Identifier already declared. Identifier: " + newA.identifier)
-            if vars.ContainsKey newA.identifier then Left ("Identifier already declared. Identifier: " + newA.identifier)
-            else vars.[newA.identifier] <- newA.vartype; Right (``type``)
+            match getVar newA.identifier with
+            | Some vartypeWithLevel when vartypeWithLevel.nestLevel = nestLevel-> 
+                Left ("Identifier already declared. Identifier: " + newA.identifier)
+            | _ -> 
+                vars.[newA.identifier] <- { vartype = newA.vartype; nestLevel = nestLevel }
+                Right (``type``)
         | Right ``type`` -> 
             Left ("Expression evaluates to different type than var declaration states. Vartype: " 
             + newA.vartype.ToString() + "; Identifier: " + newA.identifier + "; Expression type: " + ``type``.ToString())
@@ -154,8 +163,8 @@ type Analysis (ast: Statement list,
             //let x = vars |> Map.tryPick (fun ident ``type`` -> { vartype = ``type``; identifier = ident })
             match getVar exsA.identifier with
             | None -> Left ("Identifier wan not declared previously. Identifier: " + exsA.identifier)
-            | Some vartype -> 
-                if vartype = ``type`` then Right ``type``
+            | Some typeWithNestLevel -> 
+                if typeWithNestLevel.vartype = ``type`` then Right ``type``
                 else Left ("Identifier stores different type of value. Identifier: " + exsA.identifier)
             //if varsContain exsA.identifier then
             //    if vars.[exsA.identifier] = ``type`` then Right ``type``
@@ -235,7 +244,8 @@ type Analysis (ast: Statement list,
     let analyzeFunc (func: Function) =
         let funcArgs = 
             func.args 
-            |> List.fold (fun acc arg -> acc |> Map.add arg.identifier arg.vartype) Map.empty
+            |> List.fold (fun acc arg -> 
+                acc |> Map.add arg.identifier { vartype = arg.vartype; nestLevel = nestLevel }) Map.empty
             |> mapToDictionary
         funcs.[func.name] <- { ``type`` = func.``type``; args = func.args }
 
@@ -310,7 +320,7 @@ type Analysis (ast: Statement list,
     member this.run = ast |> List.map (fun statement -> checkSemanticValidity statement)
 
     new (ast) = Analysis(ast, 
-                        new Dictionary<Identifier, Vartype>(), 
+                        new Dictionary<Identifier, TypeWithLevel>(), 
                         new Dictionary<Identifier, Func>(), 1)
 
 let analyze (ast: Statement list) =
@@ -321,4 +331,5 @@ let analyze (ast: Statement list) =
         | Left err -> printfn "Statement %d: %A" (i + 1) err
         | Right _ ->  printfn "Statement %d: Semantically Correct" (i + 1)
     )
+    printfn ""
     if res |> List.exists (Either.isLeft) then None else Some ast

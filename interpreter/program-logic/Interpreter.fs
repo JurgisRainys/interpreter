@@ -154,18 +154,19 @@ type Scope (statements: Statement list,
             walkBlock whileLoop.body |> ignore
             cond <- getValueOfCondition whileLoop.condition
 
-    //let handlePrintLine (p: PrintLine) =
-    //    match p with
-    //    | PrintLine.Message msg -> printfn "%s" msg
-    //    | PrintLine.Variable ident -> printfn "%A" (vars.Find(fun x -> x.identifier = ident).value)
 
-    //let handlePrint (p: Print) =
-    //    match p with
-    //    | Print.Message msg -> printf "%s" msg
-    //    | Print.Variable ident -> printf "%A" (vars.Find(fun x -> x.identifier = ident).value)
+    let handlePrintLine (p: PrintLine) =
+        match p with
+        | PrintLine.Message msg -> printfn "%s" msg
+        | PrintLine.Variable ident -> printfn "%A" ((getVarValue ident).value)
 
-    //let handleFunctionDeclaration (f: Function) =
-    //    funcs.Add(f)
+    let handlePrint (p: Print) =
+        match p with
+        | Print.Message msg -> printf "%s" msg
+        | Print.Variable ident -> printf "%A" ((getVarValue ident).value)
+
+    let handleFunctionDeclaration (f: Function) =
+        funcs.[f.name] <- f
 
     let executeStatement statement =
         match statement with 
@@ -173,9 +174,9 @@ type Scope (statements: Statement list,
         | ExistingVarAssignment x -> handleVarAssignment x
         | If x -> handleIf x |> ignore
         | While x -> handleWhile x
-        //| Print x -> handlePrint x
-        //| PrintLine x -> handlePrintLine x
-        //| Function x -> handleFunctionDeclaration x
+        | Print x -> handlePrint x
+        | PrintLine x -> handlePrintLine x
+        | Function x -> handleFunctionDeclaration x
 
     member private this.setVarValue identifier value =
         if vars.ContainsKey identifier then
@@ -203,28 +204,10 @@ type Scope (statements: Statement list,
     member this.run: Value option =
         statements
         |> List.iter executeStatement
-
-        let v = vars
-        let f = funcs
         tryGetVarValue "RETURN" |> Option.map (fun x -> x.value)
 
-    new ast = Scope(ast, 
-                    newDictionary,
-                    newDictionary,
-                    None)
+    new ast = Scope(ast, newDictionary, newDictionary, None)
 
 let interpret (ast: Statement list) =
-    //let x = newDictionary
-    //x.Add("lol", { vartype = Int; value = Number 1})
-
-    //let scope = Scope (ast, 
-    //                    x,
-    //                    newDictionary,
-    //                    None)
-
-    //let scopechild = Scope(ast, newDictionary, newDictionary, Some scope)
-
-
     let scope = Scope ast
-    //scope.run |> ignore
-    ignore
+    scope.run |> ignore
