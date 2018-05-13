@@ -55,8 +55,11 @@ PRINTLN fibNum1;
 PRINT "10 fibonacio skaicius apskaiciuotas su ciklu: ";
 PRINTLN fibNum2;
 
+FILE OVERWRITE "results.txt" PRINT "10 fibonacio skaicius apskaiciuotas rekursyviai: ";
+FILE "results.txt" PRINTLN fibNum1;
 
-
+FILE "results.txt" PRINT "10 fibonacio skaicius apskaiciuotas su ciklu: ";
+FILE "results.txt" PRINTLN fibNum2;
 
 
 /*

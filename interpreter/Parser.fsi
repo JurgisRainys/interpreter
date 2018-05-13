@@ -20,6 +20,10 @@ type token =
   | LOGICAL_OR
   | EQUALS
   | NOT_EQUAL
+  | CLOSE
+  | OPEN
+  | OVERWRITE
+  | FILE
   | PRINTLN
   | PRINT
   | RETURN
@@ -55,6 +59,10 @@ type tokenId =
     | TOKEN_LOGICAL_OR
     | TOKEN_EQUALS
     | TOKEN_NOT_EQUAL
+    | TOKEN_CLOSE
+    | TOKEN_OPEN
+    | TOKEN_OVERWRITE
+    | TOKEN_FILE
     | TOKEN_PRINTLN
     | TOKEN_PRINT
     | TOKEN_RETURN
@@ -82,8 +90,11 @@ type nonTerminalId =
     | NONTERM_existingVarAssignment
     | NONTERM_ifCond
     | NONTERM_whileLoop
+    | NONTERM_printFile
+    | NONTERM_printConsole
+    | NONTERM_printType
     | NONTERM_print
-    | NONTERM_printLine
+    | NONTERM_text
     | NONTERM_funArg
     | NONTERM_funArgs
     | NONTERM_funArgsInParens

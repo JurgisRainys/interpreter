@@ -166,24 +166,6 @@ type Analysis (ast: Statement list,
             | Some typeWithNestLevel -> 
                 if typeWithNestLevel.vartype = ``type`` then Right ``type``
                 else Left ("Identifier stores different type of value. Identifier: " + exsA.identifier)
-            //if varsContain exsA.identifier then
-            //    if vars.[exsA.identifier] = ``type`` then Right ``type``
-            //    else Left ("Identifier stores different type of value. Identifier: " + exsA.identifier)
-            //else Left ("Identifier wan not declared previously. Identifier: " + exsA.identifier)
-                
-    let checkPrint (print: Print) = 
-        match print with
-        | Print.Message m -> Right Int
-        | Print.Variable v -> 
-            if varsContain v then Right (Int)
-            else Left ("Trying to print undefined variable.")
-
-    let checkPrintLine (print: PrintLine) = 
-        match print with
-        | PrintLine.Message m -> Right Int
-        | PrintLine.Variable v -> 
-            if varsContain v then Right (Int)
-            else Left ("Trying to print undefined variable.")
 
     let elementsFromListOfTypeToDictionary (ast: 'a list) (fkey: 'atype -> 'key) (fval: 'atype -> 'value) : Dictionary<'key, 'value> =
         let acc = new Dictionary<'key, 'value>() 
@@ -304,14 +286,29 @@ type Analysis (ast: Statement list,
         | Right ``type`` when ``type`` <> Bool -> Left ("While condition should be a boolean type expression. This expression evaluates to: " + ``type``.ToString())
         | Right _ -> analyzeBlock whileLoop.body
 
-    let checkSemanticValidity (statement: Statement) = 
+    let checkText (t: Text) =
+        match t with
+        | Message msg -> Right Str
+        | Variable v -> 
+            if varsContain v then Right Str
+            else Left ("Trying to print undefined variable.")
+
+    let checkPrintType (print: PrintType) = 
+        match print with
+        | PrintSingle text | PrintLine text -> checkText text
+
+    let checkPrint (print: Print) =
+        match print with
+        | PrintFile f  -> checkPrintType f.printType
+        | PrintConsole f -> checkPrintType f
+
+    let rec checkSemanticValidity (statement: Statement) = 
         match statement with 
         | NewVarAssignment x -> checkNewVarAssignment x
         | ExistingVarAssignment x -> checkExistingVarAssignment x
         | If x -> checkIf x
         | While x -> checkWhile x
         | Print x -> checkPrint x
-        | PrintLine x -> checkPrintLine x
         | Function x -> checkFunction x
         
     member this.ast = ast

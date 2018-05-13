@@ -2,13 +2,30 @@
 
 type Identifier = string
 
-type Print = 
+//type Print = 
+//    | Variable of Identifier
+//    | Message of string
+
+//type PrintLine = 
+//    | Variable of Identifier
+//    | Message of string
+type Text =
     | Variable of Identifier
     | Message of string
 
-type PrintLine = 
-    | Variable of Identifier
-    | Message of string
+type PrintType =
+    | PrintSingle of Text
+    | PrintLine of Text
+
+type PrintFile = {
+    printType: PrintType
+    path: string
+    overwrite: bool
+}
+
+type Print = 
+    | PrintFile of PrintFile
+    | PrintConsole of PrintType
 
 type Vartype =
     | Int
@@ -88,5 +105,4 @@ and Statement =
 | If of If
 | While of While
 | Print of Print
-| PrintLine of PrintLine
 | Function of Function

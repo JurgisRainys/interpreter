@@ -42,7 +42,8 @@ let parseNum (str: string) =
 
 let reserved = [
     "INT"; "STR"; "BOOL"; "TRUE"; "FALSE"; "THEN"; "ELSE";
-    "IF"; "WHILE"; "FUN"; "RETURN"; "PRINT"; "PRINTLN"; "OR"; "AND";
+    "IF"; "WHILE"; "FUN"; "RETURN"; "OR"; "AND"; "OVERWRITE";
+    "PRINT"; "PRINTLN"; "FILE"; "OPEN"; "CLOSE";
 ]
 
 let checkIfReserved (str: String) =
@@ -62,6 +63,10 @@ let checkIfReserved (str: String) =
         | "FUN" -> FUN 
         | "RETURN" -> RETURN 
         | "PRINT" -> PRINT 
+        | "FILE" -> FILE 
+        | "OPEN" -> OPEN
+        | "OVERWRITE" -> OVERWRITE
+        | "CLOSE" -> CLOSE
         | "PRINTLN" -> PRINTLN
         | "OR" -> LOGICAL_OR 
         | "AND" -> LOGICAL_AND 

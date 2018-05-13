@@ -1,0 +1,6 @@
+10 fibonacio skaicius apskaiciuotas rekursyviai: 
+Number 34
+
+10 fibonacio skaicius apskaiciuotas su ciklu: 
+Number 34
+

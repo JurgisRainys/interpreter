@@ -3,12 +3,8 @@
 open AST
 open System.Collections.Generic
 open System.Linq
-
-//type Var = {
-//    identifier: Identifier
-//    ``type``: Vartype
-//    value: Value
-//}
+open System.IO
+open System.Text
 
 type VarName = Identifier
 type FuncName = Identifier
@@ -32,11 +28,11 @@ let copyDictionaryByValue (dictionary: Dictionary<'a, 'b>) =
 type Scope (statements: Statement list,
             vars: Dictionary<VarName, VarValue>,
             funcs: Dictionary<FuncName, Function>,
-            parentScope: Scope option) as this =
+            parentScope: Scope option,
+            output: StreamWriter option) as this =
 
     let walkBlock (statements: Statement list) =
-        let x = Scope(statements, newDictionary, newDictionary, Some this).run
-        x
+        Scope(statements, newDictionary, newDictionary, Some this, None).run
 
     let getVarValue identifier =
         match this.getVarValue identifier with
@@ -87,7 +83,8 @@ type Scope (statements: Statement list,
             Scope(bodyWithReturnStatement,
                     innerScopeVars, 
                     innerScopeFuncs, 
-                    Some this).run
+                    Some this,
+                    output).run
 
         match funcReturned with
         | Some value -> value
@@ -154,16 +151,30 @@ type Scope (statements: Statement list,
             walkBlock whileLoop.body |> ignore
             cond <- getValueOfCondition whileLoop.condition
 
+    let text (t: Text) =
+        match t with
+        | Message msg -> msg
+        | Variable ident -> ((getVarValue ident).value).ToString()
 
-    let handlePrintLine (p: PrintLine) =
+    let handleConsolePrint (p: PrintType) =
         match p with
-        | PrintLine.Message msg -> printfn "%s" msg
-        | PrintLine.Variable ident -> printfn "%A" ((getVarValue ident).value)
+        | PrintSingle x -> printf "%s" (text x)
+        | PrintLine x -> printfn "%s" (text x)
+
+    let handleFilePrint (p: PrintFile) =
+        let print (msg: string) = 
+            let streamWriter = new StreamWriter(p.path, not (p.overwrite))
+            streamWriter.WriteLine(msg)
+            streamWriter.Close()
+
+        match p.printType with
+        | PrintSingle x -> print (text x) 
+        | PrintLine x -> print ((text x) + "\n")
 
     let handlePrint (p: Print) =
         match p with
-        | Print.Message msg -> printf "%s" msg
-        | Print.Variable ident -> printf "%A" ((getVarValue ident).value)
+        | PrintFile x -> handleFilePrint x
+        | PrintConsole x -> handleConsolePrint x
 
     let handleFunctionDeclaration (f: Function) =
         funcs.[f.name] <- f
@@ -175,7 +186,6 @@ type Scope (statements: Statement list,
         | If x -> handleIf x |> ignore
         | While x -> handleWhile x
         | Print x -> handlePrint x
-        | PrintLine x -> handlePrintLine x
         | Function x -> handleFunctionDeclaration x
 
     member private this.setVarValue identifier value =
@@ -206,7 +216,7 @@ type Scope (statements: Statement list,
         |> List.iter executeStatement
         tryGetVarValue "RETURN" |> Option.map (fun x -> x.value)
 
-    new ast = Scope(ast, newDictionary, newDictionary, None)
+    new ast = Scope(ast, newDictionary, newDictionary, None, None)
 
 let interpret (ast: Statement list) =
     let scope = Scope ast
