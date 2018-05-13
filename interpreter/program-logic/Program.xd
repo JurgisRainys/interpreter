@@ -1,4 +1,14 @@
-﻿FUN INT fib(INT fibNumberNr) ->
+﻿
+INT t = :one;
+IF (TRUE) THEN ->
+    INT t = :three;
+<- ELSE -> 
+    t = :five;
+<-
+
+/*
+FUN INT fib(INT fibNumberNr) ->
+    INT t = :one;
     FUN INT recursive(INT n, INT current, INT previous) ->
         INT toReturn = current;
 
@@ -9,8 +19,7 @@
         RETURN toReturn;
     <-
 
-    INT x = recursive(fibNumberNr - :two, :one, :zero); 
-    RETURN x;
+    RETURN recursive(fibNumberNr - :two, :one, :zero); 
 <-
 
 INT XX = fib(:four);
@@ -21,7 +30,7 @@ PRINTLN XX;
 
 
 
-
+*/
 
 
 

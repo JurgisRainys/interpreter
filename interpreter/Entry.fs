@@ -33,7 +33,7 @@ module Entry =
         code 
         |> parse
         |> Semantics.analyze 
-        //|> Option.map Interpreter.interpret
+        |> Option.map Interpreter.interpret
 
         printfn "Press any key to continue..."
         System.Console.ReadLine() |> ignore
