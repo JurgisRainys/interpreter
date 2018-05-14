@@ -20,6 +20,15 @@ type SemanticError = string
 // realiai vartype option turetu grazint, bet tingiu apsikraut, nes belenkiek papildomo matchinimo reikes.
 type AnalysisResult = Either<SemanticError, Vartype> 
 
+let copyDictionaryByValue (dictionary: Dictionary<'a, 'b>) =
+    let acc = new Dictionary<'a, 'b>()
+    dictionary
+    |> Seq.map ``|KeyValue|``
+    |> Seq.iter (fun (key, value) ->
+        acc.[key] <- value
+    ) 
+    acc
+
 let dictionaryToMap (dictionary: Dictionary<'key, 'value>) =
     dictionary |> Seq.map ``|KeyValue|`` |> Seq.toList |> Map.ofList
 
@@ -201,7 +210,7 @@ type Analysis (ast: Statement list,
         let results =
             Analysis(ast, varsInBlock, funcsInBlock, nestLevel + 1).run
             |> List.mapi (fun i res -> i + 1, res ) 
-            |> List.filter (fun (i, res) -> res |> Either.isLeft)
+            |> List.filter (fun (_, res) -> res |> Either.isLeft)
 
         match results with
         | [] -> Right(Int) // Turetu grazinti `None` optiona
@@ -212,16 +221,6 @@ type Analysis (ast: Statement list,
                 match err with 
                 | Left msg -> acc + "\n" + indentation + "Statement " + i.ToString() + ": " + msg
             ) "" |> Left
-
-    let statementsUntilFuncDefinition funcName ast =
-        //let mutable funcNotFound = true;
-        ast 
-        |> Seq.takeWhile (fun stat -> 
-            match stat with
-            | Function f when f.name = funcName -> false
-            | _ -> true
-        )
-        |> Seq.toList
 
     let analyzeFunc (func: Function) =
         let funcArgs = 
@@ -241,9 +240,20 @@ type Analysis (ast: Statement list,
         funcs.Remove func.name |> ignore // nes analyze func bloke idedam sita
         r
 
+    let overwriteOldDictionary (toOverwrite: Dictionary<'a, 'b>) ``new`` =
+        toOverwrite.Clear()
+        ``new``
+        |> dictionaryToMap
+        |> Map.iter (fun key value -> toOverwrite.[key] <- value)
+
     // nestlevelis padaro, kad graziai erroras formuojamas butu, kai nestinami blokai
     let analyzeBlock (ast: Statement list) : AnalysisResult =
-        analyzeFuncOrBlock ast vars funcs
+        let oldVars = vars |> copyDictionaryByValue
+        let oldFuncs = funcs |> copyDictionaryByValue
+        let results = analyzeFuncOrBlock ast vars funcs
+        vars|> overwriteOldDictionary <| oldVars
+        funcs|> overwriteOldDictionary <| oldFuncs
+        results
 
     let checkFunction (func: Function) =
         if funcsContain func.name then
