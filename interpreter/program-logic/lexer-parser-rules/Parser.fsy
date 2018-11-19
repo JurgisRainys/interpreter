@@ -160,9 +160,13 @@ operation:
     expressionInParens operator expressionInParens
         {{ op = $2; left = $1; right = $3 }}
 
-functionArguments: 
+funcCallArgs: 
     | expressionInParens                                { [$1] }
-    | expression COMMA functionArguments                { $1 :: $3 }
+    | expression COMMA funcCallArgs                { $1 :: $3 }
+
+funcCallArgsInParens:
+    | LEFT_PARENS RIGHT_PARENS                          { [] }
+    | LEFT_PARENS funcCallArgs RIGHT_PARENS             { $2 }
 
 functionCall: 
-    IDENTIFIER LEFT_PARENS functionArguments RIGHT_PARENS {{ identifier = $1; arguments = $3 }}
+    IDENTIFIER funcCallArgsInParens {{ identifier = $1; arguments = $2 }}

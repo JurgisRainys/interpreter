@@ -2,14 +2,18 @@
  
 open System.IO
 open Microsoft.FSharp.Text.Lexing
+open UnitTests
+open Lexer
 
 module Entry = 
+    open Parser
+
     let path = "..\\..\\program-logic\\Program.xd"
 
     [<EntryPoint>]
     let main argv =
-        let parse json = 
-            let lexbuf = LexBuffer<char>.FromString json
+        let parse str = 
+            let lexbuf = LexBuffer<char>.FromString str
             let res = 
                 try
                     Parser.start Lexer.tokens lexbuf
@@ -35,7 +39,10 @@ module Entry =
         |> Semantics.analyze 
         |> Option.map Interpreter.interpret
         |> ignore
-
+        
+        UnitTests.run |> ignore
+        
         printfn "\nPress any key to continue..."
         System.Console.ReadLine() |> ignore
         0
+

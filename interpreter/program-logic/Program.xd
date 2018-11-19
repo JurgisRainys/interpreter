@@ -1,4 +1,22 @@
-﻿FUN INT fibRecursive(INT n) ->
+﻿
+
+FUN INT first() -> 
+    STR text = "one";
+    FUN INT second() ->
+        INT text = :one;
+        RETURN text;
+    <-
+    RETURN second();
+<-
+
+/*
+
+INT X = first();
+
+
+
+
+FUN INT fibRecursive(INT n) ->
     FUN INT recursive(INT n, INT current, INT previous) ->
         INT result = current;
 
@@ -59,10 +77,6 @@ FILE "results.txt" PRINTLN fibNum1;
 
 FILE "results.txt" PRINT "10 fibonacio skaicius apskaiciuotas su ciklu: ";
 FILE "results.txt" PRINTLN fibNum2;
-
-
-/*
-
 
 
 
