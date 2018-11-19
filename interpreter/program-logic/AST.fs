@@ -2,13 +2,6 @@
 
 type Identifier = string
 
-//type Print = 
-//    | Variable of Identifier
-//    | Message of string
-
-//type PrintLine = 
-//    | Variable of Identifier
-//    | Message of string
 type Text =
     | Variable of Identifier
     | Message of string

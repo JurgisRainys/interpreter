@@ -99,7 +99,7 @@ rule tokens =
 	| commentRegex    { tokens lexbuf }
 
 	| numbers	        { NUMBER ( int (lexeme lexbuf |> parseNum)) }
-  | stringRegex     { STRING ( string (lexeme lexbuf |> trimStringQuotes)) }
+    | stringRegex     { STRING ( string (lexeme lexbuf |> trimStringQuotes)) }
 	| identifier	    { lexeme lexbuf |> checkIfReserved }
 
 	| "!="			      { NOT_EQUAL }
@@ -107,7 +107,7 @@ rule tokens =
 	| '<'			        { LESS_THAN }
 	| '>'			        { MORE_THAN }
 
-  | "++"            { APPEND }
+    | "++"            { APPEND }
 	| '+'			        { ADD }
 	| '-'			        { SUBTRACT }
 	| '/'			        { DIVIDE }

@@ -1,6 +1,5 @@
-module UnitTests
+module Tests
 
-open AST
 open System
 open System.Linq
 open System.IO
@@ -9,6 +8,7 @@ open Microsoft.FSharp.Text.Lexing
 open Xunit
 open Lexer
 open Parser
+open AST
 
 let toLexBuff str = LexBuffer<char>.FromString str
 
@@ -105,7 +105,7 @@ let ``Parser: IF (n == :one) THEN -> PRINT "x";`` =
         }]
     )
 
-        
-let run =
-    ``Lexer: STR X = "str";``
-    ``Lexer: IF (n == :one) THEN -> PRINT "x";``
+//        
+//let run =
+//    ``Lexer: STR X = "str";``
+//    ``Lexer: IF (n == :one) THEN -> PRINT "x";``

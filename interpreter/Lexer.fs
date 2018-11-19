@@ -296,7 +296,7 @@ and _fslex_tokens  _fslex_state lexbuf =
           )
   | 4 -> ( 
 # 102 "program-logic/lexer-parser-rules/Lexer.fsl"
-                                     STRING ( string (lexeme lexbuf |> trimStringQuotes)) 
+                                       STRING ( string (lexeme lexbuf |> trimStringQuotes)) 
 # 300 "Lexer.fs"
           )
   | 5 -> ( 
@@ -326,7 +326,7 @@ and _fslex_tokens  _fslex_state lexbuf =
           )
   | 10 -> ( 
 # 110 "program-logic/lexer-parser-rules/Lexer.fsl"
-                                     APPEND 
+                                       APPEND 
 # 330 "Lexer.fs"
           )
   | 11 -> ( 

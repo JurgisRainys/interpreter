@@ -40,7 +40,7 @@ module Entry =
         |> Option.map Interpreter.interpret
         |> ignore
         
-        UnitTests.run |> ignore
+//        UnitTests.run |> ignore
         
         printfn "\nPress any key to continue..."
         System.Console.ReadLine() |> ignore
