@@ -1,6 +1,6 @@
 # 1 "program-logic/lexer-parser-rules/Lexer.fsl"
  
-
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
 module Lexer
 
 open Microsoft.FSharp.Text.Lexing

@@ -1,29 +1,20 @@
 ﻿module Interpreter
 
-open AST
+open interpreter.AST
 open System.Collections.Generic
-open System.Linq
 open System.IO
-open System.Text
+open System.Diagnostics.CodeAnalysis
 
 type VarName = Identifier
 type FuncName = Identifier
 
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
 type VarValue = {
     vartype: Vartype
     value: Value
 }
 
 let newDictionary<'a, 'b when 'a : equality> = new Dictionary<'a, 'b>()
-
-let copyDictionaryByValue (dictionary: Dictionary<'a, 'b>) =
-    let acc = new Dictionary<'a, 'b>()
-    dictionary
-    |> Seq.map ``|KeyValue|``
-    |> Seq.iter (fun (key, value) ->
-        acc.[key] <- value
-    ) 
-    acc
 
 type Scope (statements: Statement list,
             vars: Dictionary<VarName, VarValue>,
@@ -45,20 +36,6 @@ type Scope (statements: Statement list,
     let tryGetVarValue identifier =
         try Some (getVarValue identifier)
         with _ -> None
-
-    let tryGetFunc name =
-        try Some (getFunc name)
-        with _ -> None
-       
-    //overwrites parent values with subscope values
-    let combineCurrentWithParent (parentScopeDictionary: Dictionary<'a, 'b>) (currentScopeDictionary: Dictionary<'a, 'b>): Dictionary<'a, 'b> =
-        let parent = parentScopeDictionary |> copyDictionaryByValue
-        currentScopeDictionary
-        |> Seq.map ``|KeyValue|``
-        |> Seq.iter (fun (key, value) ->
-            parent.[key] <- value
-        )
-        parent
 
     let rec walkFunc (f: Function) (providedArguments: Expression list) =
         let innerScopeVars = 
@@ -164,7 +141,7 @@ type Scope (statements: Statement list,
     let handleFilePrint (p: PrintFile) =
         let print (msg: string) = 
             let streamWriter = new StreamWriter(p.path, not (p.overwrite))
-            streamWriter.WriteLine(msg)
+            streamWriter.Write(msg)
             streamWriter.Close()
 
         match p.printType with

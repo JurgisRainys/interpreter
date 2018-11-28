@@ -1,1 +1,7 @@
 /.idea
+/.vs
+/packages
+/TestResults
+/tests/bin/
+/tests/obj
+/interpreter/bin/Debug

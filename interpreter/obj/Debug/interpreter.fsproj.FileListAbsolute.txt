@@ -39,13 +39,11 @@ D:\work\interpreter\interpreter\bin\Debug\xunit.assert.xml
 D:\work\interpreter\interpreter\bin\Debug\xunit.core.xml
 D:\work\interpreter\interpreter\bin\Debug\xunit.execution.desktop.xml
 C:\work\interpreter\interpreter\bin\Debug\interpreter.exe.config
-C:\work\interpreter\interpreter\bin\Debug\interpreter.XML
 C:\work\interpreter\interpreter\bin\Debug\interpreter.exe
 C:\work\interpreter\interpreter\bin\Debug\interpreter.pdb
 C:\work\interpreter\interpreter\bin\Debug\FSharp.Core.dll
 C:\work\interpreter\interpreter\bin\Debug\FsLexYacc.Runtime.dll
 C:\work\interpreter\interpreter\bin\Debug\FsUnit.Xunit.dll
-C:\work\interpreter\interpreter\bin\Debug\NHamcrest.dll
 C:\work\interpreter\interpreter\bin\Debug\System.ValueTuple.dll
 C:\work\interpreter\interpreter\bin\Debug\xunit.abstractions.dll
 C:\work\interpreter\interpreter\bin\Debug\xunit.assert.dll
@@ -54,9 +52,6 @@ C:\work\interpreter\interpreter\bin\Debug\xunit.execution.desktop.dll
 C:\work\interpreter\interpreter\bin\Debug\FSharp.Core.xml
 C:\work\interpreter\interpreter\bin\Debug\FsLexYacc.Runtime.xml
 C:\work\interpreter\interpreter\bin\Debug\FsUnit.Xunit.pdb
-C:\work\interpreter\interpreter\bin\Debug\FsUnit.Xunit.dll.config
-C:\work\interpreter\interpreter\bin\Debug\NHamcrest.xml
-C:\work\interpreter\interpreter\bin\Debug\xunit.abstractions.xml
 C:\work\interpreter\interpreter\bin\Debug\xunit.assert.xml
 C:\work\interpreter\interpreter\bin\Debug\xunit.core.xml
 C:\work\interpreter\interpreter\bin\Debug\xunit.execution.desktop.xml
@@ -64,6 +59,11 @@ C:\work\interpreter\interpreter\obj\Debug\interpreter.exe.config
 C:\work\interpreter\interpreter\obj\Debug\interpreter.exe
 C:\work\interpreter\interpreter\obj\Debug\interpreter.pdb
 C:\work\interpreter\interpreter\obj\Debug\interpreter.fsprojResolveAssemblyReference.cache
+C:\work\interpreter\interpreter\bin\Debug\interpreter.XML
+C:\work\interpreter\interpreter\bin\Debug\Microsoft.VisualStudio.CodeCoverage.Shim.dll
+C:\work\interpreter\interpreter\bin\Debug\System.Console.dll
+C:\work\interpreter\interpreter\bin\Debug\System.Threading.Thread.dll
+C:\work\interpreter\interpreter\bin\Debug\System.Threading.ThreadPool.dll
 C:\work\interpreter\interpreter\bin\Debug\cs\FSharp.Core.resources.dll
 C:\work\interpreter\interpreter\bin\Debug\de\FSharp.Core.resources.dll
 C:\work\interpreter\interpreter\bin\Debug\en\FSharp.Core.resources.dll
@@ -78,3 +78,7 @@ C:\work\interpreter\interpreter\bin\Debug\ru\FSharp.Core.resources.dll
 C:\work\interpreter\interpreter\bin\Debug\tr\FSharp.Core.resources.dll
 C:\work\interpreter\interpreter\bin\Debug\zh-Hans\FSharp.Core.resources.dll
 C:\work\interpreter\interpreter\bin\Debug\zh-Hant\FSharp.Core.resources.dll
+C:\work\interpreter\interpreter\bin\Debug\xunit.runner.visualstudio.testadapter.dll
+C:\work\interpreter\interpreter\bin\Debug\xunit.runner.reporters.net452.dll
+C:\work\interpreter\interpreter\bin\Debug\xunit.runner.utility.net452.dll
+C:\work\interpreter\interpreter\bin\Debug\FsUnit.Xunit.dll.config

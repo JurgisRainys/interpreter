@@ -1,5 +1,5 @@
 ﻿%{
-    open AST
+    open interpreter.AST
     open System
 %}
 

@@ -1,4 +1,7 @@
-﻿module AST 
+﻿[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
+module interpreter.AST 
+
+open System.Diagnostics.CodeAnalysis
 
 type Identifier = string
 

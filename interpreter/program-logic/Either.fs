@@ -1,4 +1,5 @@
-﻿module Either 
+﻿[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
+module Either 
 
 type Either<'a, 'b> =
 | Left of 'a

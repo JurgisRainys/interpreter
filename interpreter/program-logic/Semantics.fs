@@ -1,15 +1,17 @@
 ﻿module Semantics
 
-open AST
+open interpreter.AST
 open System.Linq
 open Either
 open System.Collections.Generic
 
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
 type Func = {
     ``type``: Vartype
     args: FunArg list
 }
 
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
 type TypeWithLevel = {
     vartype: Vartype
     nestLevel: int
@@ -45,12 +47,6 @@ type Analysis (ast: Statement list,
     let isNumOperator op =
         match op with
         | Add | Subtract | Divide | Multiply -> true
-        | _ -> false
-
-    let isBoolOperator op =
-        match op with
-        | MoreThan | LessThan | LogicalAnd 
-        | LogicalOr | Equals | NotEqual -> true
         | _ -> false
 
     let isStringOperator op = if (op = Append) then true else false
@@ -169,42 +165,11 @@ type Analysis (ast: Statement list,
         match expressionType(exsA.value) with
         | Left _ as err -> err
         | Right ``type`` -> 
-            //let x = vars |> Map.tryPick (fun ident ``type`` -> { vartype = ``type``; identifier = ident })
             match getVar exsA.identifier with
             | None -> Left ("Identifier wan not declared previously. Identifier: " + exsA.identifier)
             | Some typeWithNestLevel -> 
                 if typeWithNestLevel.vartype = ``type`` then Right ``type``
                 else Left ("Identifier stores different type of value. Identifier: " + exsA.identifier)
-
-    let elementsFromListOfTypeToDictionary (ast: 'a list) (fkey: 'atype -> 'key) (fval: 'atype -> 'value) : Dictionary<'key, 'value> =
-        let acc = new Dictionary<'key, 'value>() 
-        ast |> List.iter (fun x ->
-            match box x with
-            | :? 'atype as x -> 
-                acc.[fkey x] <- fval x
-            | _ -> ()
-        )
-        acc
-
-    //elementsFromListOfTypeToDictionary ast (fun x -> x.name) (fun x -> { ``type`` = x.``type``; args = x.args })
-    //elementsFromListOfTypeToDictionary ast (fun x -> x.identifier) (fun x -> x.vartype)
-    let childScopeFuncs (ast: Statement list) = 
-        let acc = new Dictionary<Identifier, Func>() 
-        ast |> List.iter (fun x ->
-            match x with
-            | Function f -> acc.[f.name] <- { ``type`` = f.``type``; args = f.args }
-            | _ -> ()
-        )
-        acc
-
-    let childScopeVars (ast: Statement list) = 
-        let acc = new Dictionary<Identifier, Vartype>() 
-        ast |> List.iter (fun x ->
-            match x with
-            | NewVarAssignment a -> acc.[a.identifier] <- a.vartype
-            | _ -> ()
-        )
-        acc
 
     let analyzeFuncOrBlock (ast: Statement list) varsInBlock funcsInBlock =
         let results =
@@ -298,7 +263,7 @@ type Analysis (ast: Statement list,
 
     let checkText (t: Text) =
         match t with
-        | Message msg -> Right Str
+        | Message _ -> Right Str
         | Variable v -> 
             if varsContain v then Right Str
             else Left ("Trying to print undefined variable.")
